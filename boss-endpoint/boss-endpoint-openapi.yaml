@@ -1,0 +1,1381 @@
+openapi: 3.0.1
+info:
+  title: FX Shaping Server RESTful API
+  description: |-
+    This API allows web clients to stage FX cash and option orders into the BidFX Order Shaping Server to be netted and merged
+    before release to market.
+
+    The request URLs elude to terminology used within the shaping server and the associated blotter.
+
+    "Staged" orders are orders input into the system by clients. The state of these orders is preserved and executions will be
+    derived and reported for each of these orders.
+
+    "Shaped" orders are orders that are the result of the netting / merging process. A shaped order represents what will be
+    sent out to the market. Executions can also be reported at the shaped order level.
+
+    "Locking" refers to the process of finalising a shaping order and sending it to the order manager. Once an order is locked, it
+    can no longer be modified. When an order is locked it will be assigned a trading_order_id value that corresponds to the
+    order_ts_id in the standard order manager API.
+
+    NB: this swagger doc is for documentation purposes only - hitting execute will return 'failed to fetch'.
+    However this will display the curl request which you can try out for yourself."
+  contact:
+    name: support
+    email: askfx@bidfx.com
+  version: "2.0"
+servers:
+- url: https://portcullis.app.bidfx.dev:443
+  description: DEV
+- url: https://portcullis.app.bidfx.tech:443
+  description: QA
+- url: https://api.ld.bidfx.biz
+  description: UAT
+paths:
+  /api/fx-shaping/v1/cash/shaped/executions:
+    get:
+      tags:
+      - Executions
+      summary: Query executions for a single cash shaped order in the shaping server.
+      description: Query executions for a single cash shaped order in the shaping
+        server.
+      operationId: handleGetCashShapedExecutionsRequest
+      parameters:
+      - name: order_id
+        in: query
+        schema:
+          type: string
+      responses:
+        401:
+          description: Credentials are required to access this endpoint
+        403:
+          description: User does not have the required permissions to access this
+            resource
+        404:
+          description: The given order ID did not refer to a known staged order
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        405:
+          description: The request method is not supported on this resource
+        406:
+          description: The request does not support the media type that the server
+            is producing; check the "Accept" header in the request is valid
+        414:
+          description: The request URL is too long
+        415:
+          description: The endpoint does not support the media type that was sent;
+            check the "Content-Type" header in the request is valid
+        500:
+          description: There was an error processing the request on the server.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        200:
+          description: Successfully located Shaped Order Executions. The list may
+            be empty if the order has no executions.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/CashExecution'
+        408:
+          description: The API could not connect to the shaping server, or the server
+            did not respond within a reasonable timeframe
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      security:
+      - basicAuth: []
+  /api/fx-shaping/v1/cash/shaped/orders/actions/unlock:
+    post:
+      tags:
+      - Actions
+      summary: Unlock a single cash shaped order in the shaping server.
+      description: Unlock a single cash shaped order in the shaping server.
+      operationId: handleCashUnlockRequest
+      requestBody:
+        description: Unlock Order Request Object
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UnlockCashOrderRequest'
+      responses:
+        401:
+          description: Credentials are required to access this endpoint
+        403:
+          description: User does not have the required permissions to access this
+            resource
+        404:
+          description: The given order ID did not refer to a known shaped order
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        405:
+          description: The request method is not supported on this resource
+        406:
+          description: The request does not support the media type that the server
+            is producing; check the "Accept" header in the request is valid
+        414:
+          description: The request URL is too long
+        415:
+          description: The endpoint does not support the media type that was sent;
+            check the "Content-Type" header in the request is valid
+        500:
+          description: There was an error processing the request on the server.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        200:
+          description: Successfully unlocked Shaped Order
+          content:
+            application/json: {}
+        408:
+          description: The API could not connect to the shaping server, or the server
+            did not respond within a reasonable timeframe
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      security:
+      - basicAuth: []
+  /api/fx-shaping/v1/cash/shaped/orders/actions/lock:
+    post:
+      tags:
+      - Actions
+      summary: Lock a single cash shaped order in the shaping server.
+      description: Lock a single cash shaped order in the shaping server.
+      operationId: handleCashLockRequest
+      requestBody:
+        description: Lock Order Request Object
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LockCashOrderRequest'
+      responses:
+        401:
+          description: Credentials are required to access this endpoint
+        403:
+          description: User does not have the required permissions to access this
+            resource
+        404:
+          description: The given order ID did not refer to a known shaped order
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        405:
+          description: The request method is not supported on this resource
+        406:
+          description: The request does not support the media type that the server
+            is producing; check the "Accept" header in the request is valid
+        414:
+          description: The request URL is too long
+        415:
+          description: The endpoint does not support the media type that was sent;
+            check the "Content-Type" header in the request is valid
+        500:
+          description: There was an error processing the request on the server.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        200:
+          description: Successfully locked Shaped Order
+          content:
+            application/json: {}
+        408:
+          description: The API could not connect to the shaping server, or the server
+            did not respond within a reasonable timeframe
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      security:
+      - basicAuth: []
+  /api/fx-shaping/v1/cash/shaped/orders:
+    get:
+      tags:
+      - Orders
+      summary: Query a single cash shaped order in the shaping server.
+      description: Query a single cash shaped order in the shaping server.
+      operationId: handleGetCashShapedRequest
+      parameters:
+      - name: order_id
+        in: query
+        schema:
+          type: string
+      - name: include_members
+        in: query
+        description: Boolean flag indicating whether member orders comprising the
+          shaped order should be included in the response.
+        schema:
+          type: boolean
+          default: false
+      responses:
+        401:
+          description: Credentials are required to access this endpoint
+        403:
+          description: User does not have the required permissions to access this
+            resource
+        404:
+          description: The given order ID did not refer to a known shaped order
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CashShapedOrder'
+        405:
+          description: The request method is not supported on this resource
+        406:
+          description: The request does not support the media type that the server
+            is producing; check the "Accept" header in the request is valid
+        414:
+          description: The request URL is too long
+        415:
+          description: The endpoint does not support the media type that was sent;
+            check the "Content-Type" header in the request is valid
+        500:
+          description: There was an error processing the request on the server.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        200:
+          description: Successfully located Shaped Order
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CashShapedOrder'
+        408:
+          description: The API could not connect to the shaping server, or the server
+            did not respond within a reasonable timeframe
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      security:
+      - basicAuth: []
+  /api/fx-shaping/v1/cash/staged/executions:
+    get:
+      tags:
+      - Executions
+      summary: Query executions for a single cash staged order in the shaping server.
+      description: Query executions for a single cash staged order in the shaping
+        server.
+      operationId: handleGetCashStagedExecutionsRequest
+      parameters:
+      - name: order_id
+        in: query
+        schema:
+          type: string
+      responses:
+        401:
+          description: Credentials are required to access this endpoint
+        403:
+          description: User does not have the required permissions to access this
+            resource
+        404:
+          description: The given order ID did not refer to a known staged order
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        405:
+          description: The request method is not supported on this resource
+        406:
+          description: The request does not support the media type that the server
+            is producing; check the "Accept" header in the request is valid
+        414:
+          description: The request URL is too long
+        415:
+          description: The endpoint does not support the media type that was sent;
+            check the "Content-Type" header in the request is valid
+        500:
+          description: There was an error processing the request on the server.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        200:
+          description: Successfully located Staged Order Executions. The list may
+            be empty if the order has no executions.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/CashExecution'
+        408:
+          description: The API could not connect to the shaping server, or the server
+            did not respond within a reasonable timeframe
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      security:
+      - basicAuth: []
+  /api/fx-shaping/v1/cash/staged/orders:
+    get:
+      tags:
+      - Orders
+      summary: Query a single cash staged order in the shaping server.
+      description: Query a single cash staged order in the shaping server.
+      operationId: handleGetCashStagedRequest
+      parameters:
+      - name: order_id
+        in: query
+        description: Unique ID of the order to query
+        schema:
+          type: string
+      responses:
+        401:
+          description: Credentials are required to access this endpoint
+        403:
+          description: User does not have the required permissions to access this
+            resource
+        404:
+          description: The given order ID did not refer to a known staged order
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CashStagedOrder'
+        405:
+          description: The request method is not supported on this resource
+        406:
+          description: The request does not support the media type that the server
+            is producing; check the "Accept" header in the request is valid
+        414:
+          description: The request URL is too long
+        415:
+          description: The endpoint does not support the media type that was sent;
+            check the "Content-Type" header in the request is valid
+        500:
+          description: There was an error processing the request on the server.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        200:
+          description: Successfully located Staged Order
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CashStagedOrder'
+        408:
+          description: The API could not connect to the shaping server, or the server
+            did not respond within a reasonable timeframe
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      security:
+      - basicAuth: []
+    post:
+      tags:
+      - Orders
+      summary: Create a single cash staged order in the shaping server.
+      description: Create a cash staged order of any deal type or currency pair. A
+        list of allocations defining accounts or client booking instructions can be
+        specified as a sub-element.
+      operationId: handleCreateCashMessage
+      requestBody:
+        description: Cash Order Object
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CashStagedOrder'
+      responses:
+        401:
+          description: Credentials are required to access this endpoint
+        403:
+          description: User does not have the required permissions to access this
+            resource
+        404:
+          description: Could not find the requested resource, ensure the path is correct
+        405:
+          description: The request method is not supported on this resource
+        406:
+          description: The request does not support the media type that the server
+            is producing; check the "Accept" header in the request is valid
+        414:
+          description: The request URL is too long
+        415:
+          description: The endpoint does not support the media type that was sent;
+            check the "Content-Type" header in the request is valid
+        500:
+          description: There was an error processing the request on the server.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        201:
+          description: Successfully created Staged Order
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CashStagedOrder'
+        400:
+          description: When a 400 code is returned, the response body will contain
+            the message the user sent, annotated with any errors describing field
+            values that failed to pass server validation.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CashStagedOrder'
+        408:
+          description: The API could not connect to the shaping server, or the server
+            did not respond within a reasonable timeframe.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      security:
+      - basicAuth: []
+  /api/fx-shaping/v1/option/shaped/executions:
+    get:
+      tags:
+      - Executions
+      summary: Query executions for a single option shaped order in the shaping server.
+      description: Query executions for a single option shaped order in the shaping
+        server.
+      operationId: handleGetOptionShapedExecutionsRequest
+      parameters:
+      - name: order_id
+        in: query
+        schema:
+          type: string
+      responses:
+        401:
+          description: Credentials are required to access this endpoint
+        403:
+          description: User does not have the required permissions to access this
+            resource
+        404:
+          description: The given order ID did not refer to a known shaped order
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        405:
+          description: The request method is not supported on this resource
+        406:
+          description: The request does not support the media type that the server
+            is producing; check the "Accept" header in the request is valid
+        414:
+          description: The request URL is too long
+        415:
+          description: The endpoint does not support the media type that was sent;
+            check the "Content-Type" header in the request is valid
+        500:
+          description: There was an error processing the request on the server.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        200:
+          description: Successfully located Shaped Order Executions. The list may
+            be empty if the order has no executions.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/OptionExecution'
+        408:
+          description: The API could not connect to the shaping server, or the server
+            did not respond within a reasonable timeframe
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      security:
+      - basicAuth: []
+  /api/fx-shaping/v1/option/shaped/orders/actions/lock:
+    post:
+      tags:
+      - Actions
+      summary: Lock a single option shaped order in the shaping server.
+      description: Lock a single option shaped order in the shaping server.
+      operationId: handleOptionLockRequest
+      requestBody:
+        description: Lock Order Request Object
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LockOptionOrderRequest'
+      responses:
+        401:
+          description: Credentials are required to access this endpoint
+        403:
+          description: User does not have the required permissions to access this
+            resource
+        404:
+          description: The given order ID did not refer to a known shaped order
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        405:
+          description: The request method is not supported on this resource
+        406:
+          description: The request does not support the media type that the server
+            is producing; check the "Accept" header in the request is valid
+        414:
+          description: The request URL is too long
+        415:
+          description: The endpoint does not support the media type that was sent;
+            check the "Content-Type" header in the request is valid
+        500:
+          description: There was an error processing the request on the server.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        200:
+          description: Successfully locked Shaped Order
+          content:
+            application/json: {}
+        408:
+          description: The API could not connect to the shaping server, or the server
+            did not respond within a reasonable timeframe
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      security:
+      - basicAuth: []
+  /api/fx-shaping/v1/option/shaped/orders/actions/unlock:
+    post:
+      tags:
+      - Actions
+      summary: Unlock a single option shaped order in the shaping server.
+      description: Unlock a single option shaped order in the shaping server.
+      operationId: handleOptionUnlockRequest
+      requestBody:
+        description: Unlock Order Request Object
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UnlockOptionOrderRequest'
+      responses:
+        401:
+          description: Credentials are required to access this endpoint
+        403:
+          description: User does not have the required permissions to access this
+            resource
+        404:
+          description: The given order ID did not refer to a known shaped order
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        405:
+          description: The request method is not supported on this resource
+        406:
+          description: The request does not support the media type that the server
+            is producing; check the "Accept" header in the request is valid
+        414:
+          description: The request URL is too long
+        415:
+          description: The endpoint does not support the media type that was sent;
+            check the "Content-Type" header in the request is valid
+        500:
+          description: There was an error processing the request on the server.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        200:
+          description: Successfully unlocked Shaped Order
+          content:
+            application/json: {}
+        408:
+          description: The API could not connect to the shaping server, or the server
+            did not respond within a reasonable timeframe
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      security:
+      - basicAuth: []
+  /api/fx-shaping/v1/option/shaped/orders:
+    get:
+      tags:
+      - Orders
+      summary: Query a single option shaped order in the shaping server.
+      description: Query a single option shaped order in the shaping server.
+      operationId: handleGetOptionShapedRequest
+      parameters:
+      - name: order_id
+        in: query
+        schema:
+          type: string
+      responses:
+        401:
+          description: Credentials are required to access this endpoint
+        403:
+          description: User does not have the required permissions to access this
+            resource
+        404:
+          description: The given order ID did not refer to a known shaped order
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OptionShapedOrder'
+        405:
+          description: The request method is not supported on this resource
+        406:
+          description: The request does not support the media type that the server
+            is producing; check the "Accept" header in the request is valid
+        414:
+          description: The request URL is too long
+        415:
+          description: The endpoint does not support the media type that was sent;
+            check the "Content-Type" header in the request is valid
+        500:
+          description: There was an error processing the request on the server.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        200:
+          description: Successfully located Shaped Order
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OptionShapedOrder'
+        408:
+          description: The API could not connect to the shaping server, or the server
+            did not respond within a reasonable timeframe
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      security:
+      - basicAuth: []
+  /api/fx-shaping/v1/option/staged/executions:
+    get:
+      tags:
+      - Executions
+      summary: Query executions for a single option staged order in the shaping server.
+      description: Query executions for a single option staged order in the shaping
+        server.
+      operationId: handleGetOptionStagedExecutionsRequest
+      parameters:
+      - name: order_id
+        in: query
+        schema:
+          type: string
+      responses:
+        401:
+          description: Credentials are required to access this endpoint
+        403:
+          description: User does not have the required permissions to access this
+            resource
+        404:
+          description: The given order ID did not refer to a known staged order
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        405:
+          description: The request method is not supported on this resource
+        406:
+          description: The request does not support the media type that the server
+            is producing; check the "Accept" header in the request is valid
+        414:
+          description: The request URL is too long
+        415:
+          description: The endpoint does not support the media type that was sent;
+            check the "Content-Type" header in the request is valid
+        500:
+          description: There was an error processing the request on the server.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        200:
+          description: Successfully located Staged Order Executions. The list may
+            be empty if the order has no executions.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/OptionExecution'
+        408:
+          description: The API could not connect to the shaping server, or the server
+            did not respond within a reasonable timeframe
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      security:
+      - basicAuth: []
+  /api/fx-shaping/v1/option/staged/orders:
+    get:
+      tags:
+      - Orders
+      summary: Query a single option staged order in the shaping server.
+      description: Query a single option staged order in the shaping server.
+      operationId: handleGetOptionStagedRequest
+      parameters:
+      - name: order_id
+        in: query
+        schema:
+          type: string
+      responses:
+        401:
+          description: Credentials are required to access this endpoint
+        403:
+          description: User does not have the required permissions to access this
+            resource
+        404:
+          description: The given order ID did not refer to a known staged order
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OptionStagedOrder'
+        405:
+          description: The request method is not supported on this resource
+        406:
+          description: The request does not support the media type that the server
+            is producing; check the "Accept" header in the request is valid
+        414:
+          description: The request URL is too long
+        415:
+          description: The endpoint does not support the media type that was sent;
+            check the "Content-Type" header in the request is valid
+        500:
+          description: There was an error processing the request on the server.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        200:
+          description: Successfully located Staged Order
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OptionStagedOrder'
+        408:
+          description: The API could not connect to the shaping server, or the server
+            did not respond within a reasonable timeframe
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      security:
+      - basicAuth: []
+    post:
+      tags:
+      - Orders
+      summary: Create a single option staged order in the shaping server.
+      description: Create an option staged order of any strategy type or currency
+        pair.
+      operationId: handleCreateOptionMessage
+      requestBody:
+        description: Option Order Object
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/OptionStagedOrder'
+      responses:
+        401:
+          description: Credentials are required to access this endpoint
+        403:
+          description: User does not have the required permissions to access this
+            resource
+        404:
+          description: Could not find the requested resource, ensure the path is correct
+        405:
+          description: The request method is not supported on this resource
+        406:
+          description: The request does not support the media type that the server
+            is producing; check the "Accept" header in the request is valid
+        414:
+          description: The request URL is too long
+        415:
+          description: The endpoint does not support the media type that was sent;
+            check the "Content-Type" header in the request is valid
+        500:
+          description: There was an error processing the request on the server.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        201:
+          description: Successfully created Staged Order
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OptionStagedOrder'
+        400:
+          description: When a 400 code is returned, the response body will contain
+            the message the user sent, annotated with any errors describing field
+            values that failed to pass server validation.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OptionStagedOrder'
+        408:
+          description: The API could not connect to the shaping server, or the server
+            did not respond within a reasonable timeframe.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      security:
+      - basicAuth: []
+  /application.wadl/{path}:
+    get:
+      operationId: getExternalGrammar
+      parameters:
+      - name: path
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        default:
+          description: default response
+          content:
+            application/xml: {}
+  /application.wadl:
+    get:
+      operationId: getWadl
+      responses:
+        default:
+          description: default response
+          content:
+            application/vnd.sun.wadl+xml: {}
+            application/xml: {}
+components:
+  schemas:
+    CashExecution:
+      type: object
+      properties:
+        account:
+          type: string
+        all_in_price:
+          type: number
+        average_price:
+          type: number
+        base_amount:
+          type: number
+        ccy_pair:
+          type: string
+        contra_amount:
+          type: number
+        counterparty_exec_id:
+          type: string
+        counterparty_order_id:
+          type: string
+        currency:
+          type: string
+        deal_type:
+          type: string
+        errors:
+          type: array
+          items:
+            $ref: '#/components/schemas/Error'
+        executed_quantity:
+          type: number
+        executing_broker:
+          type: string
+        far_all_in_price:
+          type: number
+        far_base_amount:
+          type: number
+        far_contra_amount:
+          type: number
+        far_executed_quantity:
+          type: number
+        far_forward_points:
+          type: number
+        far_mid_point_price:
+          type: number
+        forward_points:
+          type: number
+        handling_type:
+          type: string
+        id:
+          type: string
+        last_price:
+          type: number
+        market_deal_type:
+          type: string
+        mid_point_price:
+          type: number
+        order_id:
+          type: string
+        owner:
+          type: string
+        price:
+          type: number
+        side:
+          type: string
+        spot_rate:
+          type: number
+        swap_points:
+          type: number
+    Error:
+      type: object
+      properties:
+        field:
+          type: string
+          description: The field the error applies to
+          readOnly: true
+        message:
+          type: string
+          description: Error message
+          readOnly: true
+        value:
+          type: object
+          description: The value in the field the error applies to
+          readOnly: true
+    UnlockCashOrderRequest:
+      type: object
+      properties:
+        errors:
+          type: array
+          items:
+            $ref: '#/components/schemas/Error'
+        shaped_order_id:
+          type: string
+          writeOnly: true
+    LockCashOrderRequest:
+      type: object
+      properties:
+        errors:
+          type: array
+          items:
+            $ref: '#/components/schemas/Error'
+        shaped_order_id:
+          type: string
+          writeOnly: true
+    Allocation:
+      type: object
+      properties:
+        account:
+          type: string
+        aggregation_level_1:
+          type: string
+        aggregation_level_2:
+          type: string
+        aggregation_level_3:
+          type: string
+        far_quantity:
+          type: number
+        quantity:
+          type: number
+    CashShapedOrder:
+      type: object
+      properties:
+        account:
+          type: string
+        aggregation_key:
+          type: string
+        ccy_pair:
+          type: string
+        creation_time:
+          type: string
+        currency:
+          type: string
+        deal_type:
+          type: string
+        errors:
+          type: array
+          items:
+            $ref: '#/components/schemas/Error'
+        executed_quantity:
+          type: number
+        far_executed_quantity:
+          type: number
+        far_fixing_date:
+          type: string
+        far_outstanding_quantity:
+          type: number
+        far_quantity:
+          type: number
+        far_settlement_date:
+          type: string
+        far_side:
+          type: string
+        far_tenor:
+          type: string
+        fixing_date:
+          type: string
+        member_orders:
+          type: array
+          items:
+            $ref: '#/components/schemas/CashStagedOrder'
+        order_id:
+          type: string
+        outstanding_quantity:
+          type: number
+        owner:
+          type: string
+        quantity:
+          type: number
+        reference1:
+          type: string
+        reference2:
+          type: string
+        settlement_date:
+          type: string
+        side:
+          type: string
+        state:
+          type: string
+        tenor:
+          type: string
+        ticket_shortcut:
+          type: string
+        trading_order_id:
+          type: string
+    CashStagedOrder:
+      type: object
+      properties:
+        account:
+          type: string
+        aggregation_level_1:
+          type: string
+        aggregation_level_2:
+          type: string
+        aggregation_level_3:
+          type: string
+        allocations:
+          type: array
+          items:
+            $ref: '#/components/schemas/Allocation'
+        ccy_pair:
+          type: string
+        client_order_id:
+          type: string
+        creation_time:
+          type: string
+        deal_type:
+          type: string
+        errors:
+          type: array
+          items:
+            $ref: '#/components/schemas/Error'
+        executed_quantity:
+          type: number
+        far_executed_quantity:
+          type: number
+        far_fixing_date:
+          type: string
+        far_outstanding_quantity:
+          type: number
+        far_quantity:
+          type: number
+        far_settlement_date:
+          type: string
+        far_side:
+          type: string
+        far_tenor:
+          type: string
+        fixing_date:
+          type: string
+        order_id:
+          type: string
+        outstanding_quantity:
+          type: number
+        quantity:
+          type: number
+        reference1:
+          type: string
+        reference2:
+          type: string
+        settlement_date:
+          type: string
+        shaped_order_id:
+          type: string
+        side:
+          type: string
+        tenor:
+          type: string
+        ticket_shortcut:
+          type: string
+    OptionExecution:
+      type: object
+      properties:
+        account:
+          type: string
+        client_order_id:
+          type: string
+        errors:
+          type: array
+          items:
+            $ref: '#/components/schemas/Error'
+        execution_time:
+          type: string
+        leg1:
+          $ref: '#/components/schemas/OptionExecutionLeg'
+        leg2:
+          $ref: '#/components/schemas/OptionExecutionLeg'
+        liquidity_provider:
+          type: string
+        option_strategy:
+          type: string
+          enum:
+          - SINGLE_VANILLA
+          - STRADDLE
+          - STRANGLE
+          - RISK_REVERSAL
+          - CALL_SPREAD
+          - PUT_SPREAD
+          - CALENDAR_SPREAD
+        premium:
+          type: number
+        premium_currency:
+          type: string
+        premium_date:
+          type: string
+        premium_percentage:
+          type: number
+        premium_type:
+          type: string
+        quantity:
+          type: number
+        spot_rate:
+          type: number
+        trade_date:
+          type: string
+    OptionExecutionLeg:
+      type: object
+      properties:
+        broker_defined_delta:
+          type: boolean
+        currency:
+          type: string
+        cut:
+          type: string
+        delta_currency:
+          type: string
+        delta_maturity_date:
+          type: string
+        delta_quantity:
+          type: number
+        delta_rate:
+          type: number
+        delta_type:
+          type: string
+          enum:
+          - NONE
+          - SPOT
+          - FWD
+        errors:
+          type: array
+          items:
+            $ref: '#/components/schemas/Error'
+        expiry_date:
+          type: string
+        expiry_tenor:
+          type: string
+        forward_points:
+          type: number
+        option_type:
+          type: string
+          enum:
+          - Put
+          - Call
+        premium:
+          type: number
+        premium_percentage:
+          type: number
+        quantity:
+          type: number
+        strike_price:
+          type: number
+        volatility:
+          type: number
+        volatility_percentage:
+          type: number
+    LockOptionOrderRequest:
+      type: object
+      properties:
+        errors:
+          type: array
+          items:
+            $ref: '#/components/schemas/Error'
+        shaped_order_id:
+          type: string
+          writeOnly: true
+    UnlockOptionOrderRequest:
+      type: object
+      properties:
+        errors:
+          type: array
+          items:
+            $ref: '#/components/schemas/Error'
+        shaped_order_id:
+          type: string
+          writeOnly: true
+    OptionShapedOrder:
+      type: object
+      properties:
+        account:
+          type: string
+        aggregation_key:
+          type: string
+        ccy_pair:
+          type: string
+        creation_time:
+          type: string
+        deal_type:
+          type: string
+        errors:
+          type: array
+          items:
+            $ref: '#/components/schemas/Error'
+        leg1:
+          $ref: '#/components/schemas/OptionShapedOrderLeg'
+        leg2:
+          $ref: '#/components/schemas/OptionShapedOrderLeg'
+        option_strategy:
+          type: string
+        option_style:
+          type: string
+        order_id:
+          type: string
+        owner:
+          type: string
+        premium_ccy:
+          type: string
+        premium_date:
+          type: string
+        premium_type:
+          type: string
+        reference1:
+          type: string
+        reference2:
+          type: string
+        state:
+          type: string
+        ticket_shortcut:
+          type: string
+        trading_order_id:
+          type: string
+    OptionShapedOrderLeg:
+      type: object
+      properties:
+        cut:
+          type: string
+        dealt_ccy:
+          type: string
+        delta_quantity:
+          type: number
+        delta_rate:
+          type: number
+        delta_side:
+          type: string
+        delta_type:
+          type: string
+        errors:
+          type: array
+          items:
+            $ref: '#/components/schemas/Error'
+        expiry_date:
+          type: string
+        expiry_tenor:
+          type: string
+        option_type:
+          type: string
+        quantity:
+          type: number
+        settlement_date:
+          type: string
+        side:
+          type: string
+        strike_price:
+          type: number
+    OptionStagedOrder:
+      type: object
+      properties:
+        account:
+          type: string
+        aggregation_level_1:
+          type: string
+        aggregation_level_2:
+          type: string
+        aggregation_level_3:
+          type: string
+        ccy_pair:
+          type: string
+        creation_time:
+          type: string
+        deal_type:
+          type: string
+        errors:
+          type: array
+          items:
+            $ref: '#/components/schemas/Error'
+        leg1:
+          $ref: '#/components/schemas/OptionStagedOrderLeg'
+        leg2:
+          $ref: '#/components/schemas/OptionStagedOrderLeg'
+        option_strategy:
+          type: string
+        option_style:
+          type: string
+        order_id:
+          type: string
+        premium_ccy:
+          type: string
+        premium_date:
+          type: string
+        premium_type:
+          type: string
+        reference1:
+          type: string
+        reference2:
+          type: string
+        shaped_order_id:
+          type: string
+        ticket_shortcut:
+          type: string
+    OptionStagedOrderLeg:
+      type: object
+      properties:
+        cut:
+          type: string
+        dealt_ccy:
+          type: string
+        delta_quantity:
+          type: number
+        delta_rate:
+          type: number
+        delta_side:
+          type: string
+        delta_type:
+          type: string
+        errors:
+          type: array
+          items:
+            $ref: '#/components/schemas/Error'
+        expiry_date:
+          type: string
+        expiry_tenor:
+          type: string
+        option_type:
+          type: string
+        quantity:
+          type: number
+        settlement_date:
+          type: string
+        side:
+          type: string
+        strike_price:
+          type: number
+  securitySchemes:
+    basicAuth:
+      type: http
+      scheme: basic
