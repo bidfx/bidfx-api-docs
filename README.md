@@ -12,3 +12,4 @@ Here you can find links to the documentation for our publicly available APIs:
 
 ### Swagger Docs
 * [OM-Endpoint](https://docs.bidfx.com/om-endpoint/index.html)
+* [BOSS-Endpoint](https://docs.bidfx.com/boss-endpoint/index.html)
