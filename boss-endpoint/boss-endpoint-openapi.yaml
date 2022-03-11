@@ -26,8 +26,8 @@ info:
 servers:
   - url: https://api.ld.bidfx.biz:443
     description: London UAT REST
-  - url: https://api.sg.bidfx.biz:443
-    description: Singapore UAT REST
+  - url: https://api.ty.bidfx.biz:443
+    description: Tokyo UAT REST
   - url: https://api.sg.bidfx.com:443
     description: Singapore Production REST
   - url: https://api.ty.bidfx.com:443
