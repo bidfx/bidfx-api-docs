@@ -24,12 +24,18 @@ info:
     email: askfx@bidfx.com
   version: "2.0"
 servers:
-- url: https://portcullis.app.bidfx.dev:443
-  description: DEV
-- url: https://portcullis.app.bidfx.tech:443
-  description: QA
-- url: https://api.ld.bidfx.biz
-  description: UAT
+  - url: https://api.ld.bidfx.biz:443
+    description: London UAT REST
+  - url: https://api.sg.bidfx.biz:443
+    description: Singapore UAT REST
+  - url: https://api.sg.bidfx.com:443
+    description: Singapore Production REST
+  - url: https://api.ty.bidfx.com:443
+    description: Tokyo Production REST
+  - url: https://api.ld.bidfx.com:443
+    description: London Production REST
+  - url: https://api.ny.bidfx.com:443
+    description: New York Production REST
 paths:
   /api/fx-shaping/v1/cash/shaped/executions:
     get:
