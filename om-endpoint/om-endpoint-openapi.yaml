@@ -187,12 +187,12 @@ paths:
           type: string
       - name: deal_type
         in: query
-        description: The Deal Type (FWD can also be provided as FORWARD or OUTRIGHT)
+        description: The Deal Type (FORWARD can also be provided as FWD or OUTRIGHT)
         schema:
           type: string
           enum:
           - SPOT
-          - FWD
+          - FORWARD
           - SWAP
           - NDF
           - NDS
@@ -2346,12 +2346,12 @@ components:
           items:
             type: string
             description: "Deal types for which this algo is applicable, unless empty\
-              \ (FWD can also be provided as FORWARD or OUTRIGHT)"
+              \ (FORWARD can also be provided as FWD or OUTRIGHT)"
             readOnly: true
-            example: "SPOT, FWD"
+            example: "SPOT, FORWARD"
             enum:
             - SPOT
-            - FWD
+            - FORWARD
             - SWAP
             - NDF
             - NDS
@@ -2677,10 +2677,10 @@ components:
             description: The currency pair to be traded
           deal_type:
             type: string
-            description: The deal type to be traded (FWD can also be provided as FORWARD or OUTRIGHT)
+            description: The deal type to be traded (FORWARD can also be provided as FWD or OUTRIGHT)
             enum:
             - SPOT
-            - FWD
+            - FORWARD
             - SWAP
             - NDF
             - NDS
@@ -3065,10 +3065,10 @@ components:
           description: Custom fields that can be supplied to TS.  This is by agreement.
         deal_type:
           type: string
-          description: The deal type to be traded (FWD can also be provided as FORWARD or OUTRIGHT)
+          description: The deal type to be traded (FORWARD can also be provided as FWD or OUTRIGHT)
           enum:
           - SPOT
-          - FWD
+          - FORWARD
           - SWAP
           - NDF
           - NDS
@@ -5866,10 +5866,10 @@ components:
           - BD
         deal_type:
           type: string
-          description: The deal type to be traded (FWD can also be provided as FORWARD or OUTRIGHT)
+          description: The deal type to be traded (FORWARD can also be provided as FWD or OUTRIGHT)
           enum:
           - SPOT
-          - FWD
+          - FORWARD
           - SWAP
           - NDF
           - NDS
@@ -6372,12 +6372,12 @@ components:
           items:
             type: string
             description: "Deal types for which this algo is applicable, unless empty\
-              \ (FWD can also be provided as FORWARD or OUTRIGHT)"
+              \ (FORWARD can also be provided as FWD or OUTRIGHT)"
             readOnly: true
-            example: "SPOT, FWD"
+            example: "SPOT, FORWARD"
             enum:
             - SPOT
-            - FWD
+            - FORWARD
             - SWAP
             - NDF
             - NDS
