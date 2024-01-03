@@ -187,7 +187,7 @@ paths:
           type: string
       - name: deal_type
         in: query
-        description: The Deal Type
+        description: The Deal Type (FWD can also be provided as FORWARD or OUTRIGHT)
         schema:
           type: string
           enum:
@@ -2345,7 +2345,8 @@ components:
           example: "SPOT, FWD"
           items:
             type: string
-            description: "Deal types for which this algo is applicable, unless empty"
+            description: "Deal types for which this algo is applicable, unless empty\
+              \ (FWD can also be provided as FORWARD or OUTRIGHT)"
             readOnly: true
             example: "SPOT, FWD"
             enum:
@@ -2676,7 +2677,7 @@ components:
             description: The currency pair to be traded
           deal_type:
             type: string
-            description: The deal type to be traded
+            description: The deal type to be traded (FWD can also be provided as FORWARD or OUTRIGHT)
             enum:
             - SPOT
             - FWD
@@ -3064,7 +3065,7 @@ components:
           description: Custom fields that can be supplied to TS.  This is by agreement.
         deal_type:
           type: string
-          description: The deal type to be traded
+          description: The deal type to be traded (FWD can also be provided as FORWARD or OUTRIGHT)
           enum:
           - SPOT
           - FWD
@@ -5865,7 +5866,7 @@ components:
           - BD
         deal_type:
           type: string
-          description: The deal type to be traded
+          description: The deal type to be traded (FWD can also be provided as FORWARD or OUTRIGHT)
           enum:
           - SPOT
           - FWD
@@ -6370,7 +6371,8 @@ components:
           example: "SPOT, FWD"
           items:
             type: string
-            description: "Deal types for which this algo is applicable, unless empty"
+            description: "Deal types for which this algo is applicable, unless empty\
+              \ (FWD can also be provided as FORWARD or OUTRIGHT)"
             readOnly: true
             example: "SPOT, FWD"
             enum:
