@@ -1,6 +1,6 @@
 ![BidFX Logo](images/BidFX%20logo128.png)
 
-# BidFX Public API Documentation
+# SGX FX Public API Documentation
 
 Here you can find links to the documentation for our publicly available APIs:
 
@@ -13,3 +13,6 @@ Here you can find links to the documentation for our publicly available APIs:
 ### Swagger Docs
 * [OM-Endpoint](https://docs.bidfx.com/om-endpoint/index.html)
 * [BOSS-Endpoint](https://docs.bidfx.com/boss-endpoint/index.html)
+
+### SGX FX FIX Specifications
+* [SGX FX Composite Market Data FIX](https://docs.bidfx.com/fix-composite-market-data/index.html)
