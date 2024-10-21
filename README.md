@@ -16,3 +16,7 @@ Here you can find links to the documentation for our publicly available APIs:
 
 ### SGX FX FIX Specifications
 * [SGX FX Composite Market Data FIX](https://docs.bidfx.com/fix-composite-market-data/index.html)
+
+### SGX FX Historical Price Data API
+* [Historical Price Data - Branch Feed](https://docs.bidfx.com/api-historical-price-data/branch-feed.html)
+* [Historical Price Data - Consolidated Feed](https://docs.bidfx.com/api-historical-price-data/consolidated-feed.html)
