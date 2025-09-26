@@ -39,6 +39,77 @@ servers:
 - url: https://api.ny.bidfx.com:443
   description: New York Production REST
 paths:
+  /:
+    get:
+      operationId: health
+      responses:
+        default:
+          description: default response
+          content:
+            '*/*': {}
+  /{default}:
+    get:
+      operationId: get
+      responses:
+        default:
+          description: default response
+          content:
+            '*/*': {}
+    put:
+      operationId: put
+      requestBody:
+        content:
+          '*/*':
+            schema:
+              type: string
+      responses:
+        default:
+          description: default response
+          content:
+            '*/*': {}
+    post:
+      operationId: post
+      requestBody:
+        content:
+          '*/*':
+            schema:
+              type: string
+      responses:
+        default:
+          description: default response
+          content:
+            '*/*': {}
+    delete:
+      operationId: delete
+      requestBody:
+        content:
+          '*/*':
+            schema:
+              type: string
+      responses:
+        default:
+          description: default response
+          content:
+            '*/*': {}
+    options:
+      operationId: option
+      responses:
+        default:
+          description: default response
+          content:
+            '*/*': {}
+    patch:
+      operationId: patch
+      requestBody:
+        content:
+          '*/*':
+            schema:
+              type: string
+      responses:
+        default:
+          description: default response
+          content:
+            '*/*': {}
   /api/om/heartbeat:
     get:
       summary: Heartbeat
@@ -187,12 +258,12 @@ paths:
           type: string
       - name: deal_type
         in: query
-        description: The Deal Type (FORWARD can also be provided as FWD or OUTRIGHT)
+        description: The Deal Type
         schema:
           type: string
           enum:
           - SPOT
-          - FORWARD
+          - FWD
           - SWAP
           - NDF
           - NDS
@@ -303,136 +374,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/OrderInstructionAcknowledgement'
-      security:
-      - basicAuth: []
-  /api/om/v2/order/paged:
-    get:
-      tags:
-      - Order
-      summary: Paged order query
-      description: "Query all orders (or by order_ts_id/client_order_id) for the branch\
-        \ associated with the REST client username. This request responds with orders\
-        \ in a streaming fashion (Transfer-Encoding: chunked) and is the preferred\
-        \ method for querying large quantities of orders."
-      operationId: queryAllOrdersPaged
-      parameters:
-      - name: order_ts_id
-        in: query
-        description: The order ID to query
-        schema:
-          type: array
-          items:
-            type: string
-      - name: include_executions
-        in: query
-        description: True to include executions
-        schema:
-          type: boolean
-          default: true
-      - name: include_instructions
-        in: query
-        description: True to include instructions
-        schema:
-          type: boolean
-          default: false
-      - name: include_historical_orders
-        in: query
-        description: True to include historical orders
-        schema:
-          type: boolean
-          default: false
-      - name: include_competitive_rates
-        in: query
-        description: True to include competitive rates
-        schema:
-          type: boolean
-          default: false
-      - name: client_order_id
-        in: query
-        description: The client order id to query
-        schema:
-          type: array
-          items:
-            type: string
-      - name: filter_field
-        in: query
-        description: The name of a field on which to filter results
-        schema:
-          type: string
-      - name: filter_value
-        in: query
-        description: Only orders whose filter_field field has a value of exactly filter_value
-          are returned
-        schema:
-          type: string
-      - name: filter_min
-        in: query
-        description: Only orders whose filter_field field have a value greater than
-          filter_min are returned
-        schema:
-          type: string
-      - name: filter_max
-        in: query
-        description: Only orders whose filter_field field have a value less that filter_max
-          are returned
-        schema:
-          type: string
-      - name: timeout
-        in: query
-        description: Request timeout in milliseconds
-        schema:
-          type: integer
-          format: int64
-      responses:
-        "401":
-          description: Credentials are required to access this endpoint
-        "403":
-          description: User does not have the required permissions to access this
-            resource
-        "404":
-          description: An empty List of orders
-          content:
-            application/json:
-              schema:
-                minItems: 0
-                type: array
-                items:
-                  type: object
-                  anyOf:
-                  - $ref: '#/components/schemas/PortfolioOrder'
-                  - $ref: '#/components/schemas/ATDLAlgoFxOrder'
-                  - $ref: '#/components/schemas/WaveOrder'
-              example: []
-        "405":
-          description: The request method is not supported on this resource
-        "406":
-          description: The request does not support the media type that the server
-            is producing; check the "Accept" header in the request is valid
-        "414":
-          description: The request URL is too long
-        "415":
-          description: The endpoint does not support the media type that was sent;
-            check the "Content-Type" header in the request is valid
-        "500":
-          description: An error occurred while processing the request
-        "200":
-          description: A List of orders matching the query
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  type: object
-                  anyOf:
-                  - $ref: '#/components/schemas/PortfolioOrder'
-                  - $ref: '#/components/schemas/ATDLAlgoFxOrder'
-                  - $ref: '#/components/schemas/WaveOrder'
-        "400":
-          description: An ErrorBuilder detailing the request failure
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
       security:
       - basicAuth: []
   /api/om/v2/order:
@@ -706,6 +647,224 @@ paths:
                   - $ref: '#/components/schemas/WaveOrder'
       security:
       - basicAuth: []
+  /api/om/v2/order/paged:
+    get:
+      tags:
+      - Order
+      summary: Paged order query
+      description: "Query all orders (or by order_ts_id/client_order_id) for the branch\
+        \ associated with the REST client username. This request responds with orders\
+        \ in a streaming fashion (Transfer-Encoding: chunked) and is the preferred\
+        \ method for querying large quantities of orders."
+      operationId: queryAllOrdersPaged
+      parameters:
+      - name: order_ts_id
+        in: query
+        description: The order ID to query
+        schema:
+          type: array
+          items:
+            type: string
+      - name: include_executions
+        in: query
+        description: True to include executions
+        schema:
+          type: boolean
+          default: true
+      - name: include_instructions
+        in: query
+        description: True to include instructions
+        schema:
+          type: boolean
+          default: false
+      - name: include_historical_orders
+        in: query
+        description: True to include historical orders
+        schema:
+          type: boolean
+          default: false
+      - name: include_competitive_rates
+        in: query
+        description: True to include competitive rates
+        schema:
+          type: boolean
+          default: false
+      - name: client_order_id
+        in: query
+        description: The client order id to query
+        schema:
+          type: array
+          items:
+            type: string
+      - name: filter_field
+        in: query
+        description: The name of a field on which to filter results
+        schema:
+          type: string
+      - name: filter_value
+        in: query
+        description: Only orders whose filter_field field has a value of exactly filter_value
+          are returned
+        schema:
+          type: string
+      - name: filter_min
+        in: query
+        description: Only orders whose filter_field field have a value greater than
+          filter_min are returned
+        schema:
+          type: string
+      - name: filter_max
+        in: query
+        description: Only orders whose filter_field field have a value less that filter_max
+          are returned
+        schema:
+          type: string
+      - name: timeout
+        in: query
+        description: Request timeout in milliseconds
+        schema:
+          type: integer
+          format: int64
+      responses:
+        "401":
+          description: Credentials are required to access this endpoint
+        "403":
+          description: User does not have the required permissions to access this
+            resource
+        "404":
+          description: An empty List of orders
+          content:
+            application/json:
+              schema:
+                minItems: 0
+                type: array
+                items:
+                  type: object
+                  anyOf:
+                  - $ref: '#/components/schemas/PortfolioOrder'
+                  - $ref: '#/components/schemas/ATDLAlgoFxOrder'
+                  - $ref: '#/components/schemas/WaveOrder'
+              example: []
+        "405":
+          description: The request method is not supported on this resource
+        "406":
+          description: The request does not support the media type that the server
+            is producing; check the "Accept" header in the request is valid
+        "414":
+          description: The request URL is too long
+        "415":
+          description: The endpoint does not support the media type that was sent;
+            check the "Content-Type" header in the request is valid
+        "500":
+          description: An error occurred while processing the request
+        "200":
+          description: A List of orders matching the query
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  anyOf:
+                  - $ref: '#/components/schemas/PortfolioOrder'
+                  - $ref: '#/components/schemas/ATDLAlgoFxOrder'
+                  - $ref: '#/components/schemas/WaveOrder'
+        "400":
+          description: An ErrorBuilder detailing the request failure
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      security:
+      - basicAuth: []
+  /api/om/v2/order/amend:
+    post:
+      tags:
+      - Order
+      summary: Amend any security order
+      description: Amend any security order. The POST body is a single AmendInstruction
+        object.
+      operationId: amendOrder
+      parameters:
+      - name: aggregate
+        in: query
+        description: "If true, child orders will be shown as sub elements of the parent\
+          \ order."
+        schema:
+          type: boolean
+          default: true
+      - name: aggregate_execution
+        in: query
+        description: "If true, and aggregate is also set, all executions of parent\
+          \ and child orders will be shown at the parent level"
+        schema:
+          type: boolean
+          default: true
+      requestBody:
+        description: The AmendInstruction
+        content:
+          application/json:
+            schema:
+              oneOf:
+              - $ref: '#/components/schemas/PortfolioOrderAmendInstruction'
+              - $ref: '#/components/schemas/FxOrderAmendInstruction'
+      responses:
+        "401":
+          description: Credentials are required to access this endpoint
+        "403":
+          description: User does not have the required permissions to access this
+            resource
+        "404":
+          description: "Could not find the requested resource, ensure the path is\
+            \ correct"
+        "405":
+          description: The request method is not supported on this resource
+        "406":
+          description: The request does not support the media type that the server
+            is producing; check the "Accept" header in the request is valid
+        "414":
+          description: The request URL is too long
+        "415":
+          description: The endpoint does not support the media type that was sent;
+            check the "Content-Type" header in the request is valid
+        "500":
+          description: An error occurred while processing the request
+        "201":
+          description: Details of the amended order
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  anyOf:
+                  - $ref: '#/components/schemas/PortfolioOrder'
+                  - $ref: '#/components/schemas/ATDLAlgoFxOrder'
+                  - $ref: '#/components/schemas/WaveOrder'
+        "202":
+          description: "Details of the amended order.  The orders are accepted because\
+            \ they require further processing, either by external brokers acknowledging\
+            \ an auto submit, or the client acknowledging a violation"
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  anyOf:
+                  - $ref: '#/components/schemas/PortfolioOrder'
+                  - $ref: '#/components/schemas/ATDLAlgoFxOrder'
+                  - $ref: '#/components/schemas/WaveOrder'
+        "400":
+          description: Invalid Amend Instruction
+          content:
+            application/json:
+              schema:
+                oneOf:
+                - $ref: '#/components/schemas/PortfolioOrderAmendInstruction'
+                - $ref: '#/components/schemas/FxOrderAmendInstruction'
+      security:
+      - basicAuth: []
   /api/om/v2/order/cancel:
     post:
       tags:
@@ -963,94 +1122,6 @@ paths:
                 $ref: '#/components/schemas/SliceOrderInstruction'
       security:
       - basicAuth: []
-  /api/om/v2/order/amend:
-    post:
-      tags:
-      - Order
-      summary: Amend any security order
-      description: Amend any security order. The POST body is a single AmendInstruction
-        object.
-      operationId: amendOrder
-      parameters:
-      - name: aggregate
-        in: query
-        description: "If true, child orders will be shown as sub elements of the parent\
-          \ order."
-        schema:
-          type: boolean
-          default: true
-      - name: aggregate_execution
-        in: query
-        description: "If true, and aggregate is also set, all executions of parent\
-          \ and child orders will be shown at the parent level"
-        schema:
-          type: boolean
-          default: true
-      requestBody:
-        description: The AmendInstruction
-        content:
-          application/json:
-            schema:
-              oneOf:
-              - $ref: '#/components/schemas/PortfolioOrderAmendInstruction'
-              - $ref: '#/components/schemas/FxOrderAmendInstruction'
-      responses:
-        "401":
-          description: Credentials are required to access this endpoint
-        "403":
-          description: User does not have the required permissions to access this
-            resource
-        "404":
-          description: "Could not find the requested resource, ensure the path is\
-            \ correct"
-        "405":
-          description: The request method is not supported on this resource
-        "406":
-          description: The request does not support the media type that the server
-            is producing; check the "Accept" header in the request is valid
-        "414":
-          description: The request URL is too long
-        "415":
-          description: The endpoint does not support the media type that was sent;
-            check the "Content-Type" header in the request is valid
-        "500":
-          description: An error occurred while processing the request
-        "201":
-          description: Details of the amended order
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  type: object
-                  anyOf:
-                  - $ref: '#/components/schemas/PortfolioOrder'
-                  - $ref: '#/components/schemas/ATDLAlgoFxOrder'
-                  - $ref: '#/components/schemas/WaveOrder'
-        "202":
-          description: "Details of the amended order.  The orders are accepted because\
-            \ they require further processing, either by external brokers acknowledging\
-            \ an auto submit, or the client acknowledging a violation"
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  type: object
-                  anyOf:
-                  - $ref: '#/components/schemas/PortfolioOrder'
-                  - $ref: '#/components/schemas/ATDLAlgoFxOrder'
-                  - $ref: '#/components/schemas/WaveOrder'
-        "400":
-          description: Invalid Amend Instruction
-          content:
-            application/json:
-              schema:
-                oneOf:
-                - $ref: '#/components/schemas/PortfolioOrderAmendInstruction'
-                - $ref: '#/components/schemas/FxOrderAmendInstruction'
-      security:
-      - basicAuth: []
   /api/om/v2/algo:
     get:
       tags:
@@ -1137,129 +1208,6 @@ paths:
                   $ref: '#/components/schemas/Algo'
         "400":
           description: Invalid Request Paramenters
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-      security:
-      - basicAuth: []
-  /api/om/v2/fx/paged:
-    get:
-      tags:
-      - Order
-      - FX
-      summary: Paged FX Order query
-      description: "Query all FX orders (or by order_ts_id/client_order_id) for the\
-        \ branch associated with the REST client username. This request responds with\
-        \ orders in a streaming fashion (Transfer-Encoding: chunked) and is the preferred\
-        \ method for querying large quantities of FX orders."
-      operationId: queryFxOrdersPaged
-      parameters:
-      - name: order_ts_id
-        in: query
-        description: The order ID to query
-        schema:
-          type: array
-          items:
-            type: string
-      - name: include_executions
-        in: query
-        description: True to include executions
-        schema:
-          type: boolean
-          default: true
-      - name: include_instructions
-        in: query
-        description: True to include instructions
-        schema:
-          type: boolean
-          default: false
-      - name: include_historical_orders
-        in: query
-        description: True to include historical orders
-        schema:
-          type: boolean
-          default: false
-      - name: include_competitive_rates
-        in: query
-        description: True to include competitive rates
-        schema:
-          type: boolean
-          default: false
-      - name: client_order_id
-        in: query
-        description: The client order id to query
-        schema:
-          type: array
-          items:
-            type: string
-      - name: filter_field
-        in: query
-        description: The name of a field on which to filter results
-        schema:
-          type: string
-      - name: filter_value
-        in: query
-        description: Only orders whose filter_field field has a value of exactly filter_value
-          are returned
-        schema:
-          type: string
-      - name: filter_min
-        in: query
-        description: Only orders whose filter_field field have a value greater than
-          filter_min are returned
-        schema:
-          type: string
-      - name: filter_max
-        in: query
-        description: Only orders whose filter_field field have a value less that filter_max
-          are returned
-        schema:
-          type: string
-      - name: timeout
-        in: query
-        description: Request timeout in milliseconds
-        schema:
-          type: integer
-          format: int64
-      responses:
-        "401":
-          description: Credentials are required to access this endpoint
-        "403":
-          description: User does not have the required permissions to access this
-            resource
-        "404":
-          description: An empty List of FX orders
-          content:
-            application/json:
-              schema:
-                minItems: 0
-                type: array
-                items:
-                  $ref: '#/components/schemas/ATDLAlgoFxOrder'
-              example: []
-        "405":
-          description: The request method is not supported on this resource
-        "406":
-          description: The request does not support the media type that the server
-            is producing; check the "Accept" header in the request is valid
-        "414":
-          description: The request URL is too long
-        "415":
-          description: The endpoint does not support the media type that was sent;
-            check the "Content-Type" header in the request is valid
-        "500":
-          description: An error occurred while processing the request
-        "200":
-          description: A List of FX orders matching the query
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/ATDLAlgoFxOrder'
-        "400":
-          description: An ErrorBuilder detailing the request failure
           content:
             application/json:
               schema:
@@ -1482,6 +1430,205 @@ paths:
                   $ref: '#/components/schemas/ATDLAlgoFxOrder'
       security:
       - basicAuth: []
+  /api/om/v2/fx/paged:
+    get:
+      tags:
+      - Order
+      - FX
+      summary: Paged FX Order query
+      description: "Query all FX orders (or by order_ts_id/client_order_id) for the\
+        \ branch associated with the REST client username. This request responds with\
+        \ orders in a streaming fashion (Transfer-Encoding: chunked) and is the preferred\
+        \ method for querying large quantities of FX orders."
+      operationId: queryFxOrdersPaged
+      parameters:
+      - name: order_ts_id
+        in: query
+        description: The order ID to query
+        schema:
+          type: array
+          items:
+            type: string
+      - name: include_executions
+        in: query
+        description: True to include executions
+        schema:
+          type: boolean
+          default: true
+      - name: include_instructions
+        in: query
+        description: True to include instructions
+        schema:
+          type: boolean
+          default: false
+      - name: include_historical_orders
+        in: query
+        description: True to include historical orders
+        schema:
+          type: boolean
+          default: false
+      - name: include_competitive_rates
+        in: query
+        description: True to include competitive rates
+        schema:
+          type: boolean
+          default: false
+      - name: client_order_id
+        in: query
+        description: The client order id to query
+        schema:
+          type: array
+          items:
+            type: string
+      - name: filter_field
+        in: query
+        description: The name of a field on which to filter results
+        schema:
+          type: string
+      - name: filter_value
+        in: query
+        description: Only orders whose filter_field field has a value of exactly filter_value
+          are returned
+        schema:
+          type: string
+      - name: filter_min
+        in: query
+        description: Only orders whose filter_field field have a value greater than
+          filter_min are returned
+        schema:
+          type: string
+      - name: filter_max
+        in: query
+        description: Only orders whose filter_field field have a value less that filter_max
+          are returned
+        schema:
+          type: string
+      - name: timeout
+        in: query
+        description: Request timeout in milliseconds
+        schema:
+          type: integer
+          format: int64
+      responses:
+        "401":
+          description: Credentials are required to access this endpoint
+        "403":
+          description: User does not have the required permissions to access this
+            resource
+        "404":
+          description: An empty List of FX orders
+          content:
+            application/json:
+              schema:
+                minItems: 0
+                type: array
+                items:
+                  $ref: '#/components/schemas/ATDLAlgoFxOrder'
+              example: []
+        "405":
+          description: The request method is not supported on this resource
+        "406":
+          description: The request does not support the media type that the server
+            is producing; check the "Accept" header in the request is valid
+        "414":
+          description: The request URL is too long
+        "415":
+          description: The endpoint does not support the media type that was sent;
+            check the "Content-Type" header in the request is valid
+        "500":
+          description: An error occurred while processing the request
+        "200":
+          description: A List of FX orders matching the query
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ATDLAlgoFxOrder'
+        "400":
+          description: An ErrorBuilder detailing the request failure
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      security:
+      - basicAuth: []
+  /api/om/v2/fx/amend:
+    post:
+      tags:
+      - Order
+      - FX
+      summary: Amend FX Orders
+      description: Amend an FX order. The POST body is a single FxAmendInstruction
+        object
+      operationId: amendFxOrder
+      parameters:
+      - name: aggregate
+        in: query
+        description: "If true, child orders will be shown as sub elements of the parent\
+          \ order."
+        schema:
+          type: boolean
+          default: false
+      - name: aggregate_execution
+        in: query
+        description: "If true, and aggregate is also set, all executions of parent\
+          \ and child orders will be shown at the parent level"
+        schema:
+          type: boolean
+          default: true
+      requestBody:
+        description: Amend Instruction
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/FxOrderAmendInstruction'
+      responses:
+        "401":
+          description: Credentials are required to access this endpoint
+        "403":
+          description: User does not have the required permissions to access this
+            resource
+        "404":
+          description: "Could not find the requested resource, ensure the path is\
+            \ correct"
+        "405":
+          description: The request method is not supported on this resource
+        "406":
+          description: The request does not support the media type that the server
+            is producing; check the "Accept" header in the request is valid
+        "414":
+          description: The request URL is too long
+        "415":
+          description: The endpoint does not support the media type that was sent;
+            check the "Content-Type" header in the request is valid
+        "500":
+          description: An error occurred while processing the request
+        "201":
+          description: FX Order Amended
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ATDLAlgoFxOrder'
+        "202":
+          description: "FX Orders Staged.  The orders are accepted because they require\
+            \ further processing, by the client acknowledging a violation"
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ATDLAlgoFxOrder'
+        "400":
+          description: Invalid Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FxOrderAmendInstruction'
+      security:
+      - basicAuth: []
   /api/om/v2/fx/cancel:
     post:
       tags:
@@ -1632,205 +1779,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/FxOrderSubmitInstruction'
-      security:
-      - basicAuth: []
-  /api/om/v2/fx/amend:
-    post:
-      tags:
-      - Order
-      - FX
-      summary: Amend FX Orders
-      description: Amend an FX order. The POST body is a single FxAmendInstruction
-        object
-      operationId: amendFxOrder
-      parameters:
-      - name: aggregate
-        in: query
-        description: "If true, child orders will be shown as sub elements of the parent\
-          \ order."
-        schema:
-          type: boolean
-          default: false
-      - name: aggregate_execution
-        in: query
-        description: "If true, and aggregate is also set, all executions of parent\
-          \ and child orders will be shown at the parent level"
-        schema:
-          type: boolean
-          default: true
-      requestBody:
-        description: Amend Instruction
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/FxOrderAmendInstruction'
-      responses:
-        "401":
-          description: Credentials are required to access this endpoint
-        "403":
-          description: User does not have the required permissions to access this
-            resource
-        "404":
-          description: "Could not find the requested resource, ensure the path is\
-            \ correct"
-        "405":
-          description: The request method is not supported on this resource
-        "406":
-          description: The request does not support the media type that the server
-            is producing; check the "Accept" header in the request is valid
-        "414":
-          description: The request URL is too long
-        "415":
-          description: The endpoint does not support the media type that was sent;
-            check the "Content-Type" header in the request is valid
-        "500":
-          description: An error occurred while processing the request
-        "201":
-          description: FX Order Amended
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/ATDLAlgoFxOrder'
-        "202":
-          description: "FX Orders Staged.  The orders are accepted because they require\
-            \ further processing, by the client acknowledging a violation"
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/ATDLAlgoFxOrder'
-        "400":
-          description: Invalid Request
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/FxOrderAmendInstruction'
-      security:
-      - basicAuth: []
-  /api/om/v3/fx/paged:
-    get:
-      tags:
-      - Order
-      - FX
-      summary: Paged FX Order query
-      description: "Query all FX orders (or by order_ts_id/client_order_id) for the\
-        \ branch associated with the REST client username. This request responds with\
-        \ orders in a streaming fashion (Transfer-Encoding: chunked) and is the preferred\
-        \ method for querying large quantities of FX orders."
-      operationId: queryFxOrdersPaged_1
-      parameters:
-      - name: order_ts_id
-        in: query
-        description: The order ID to query
-        schema:
-          type: array
-          items:
-            type: string
-      - name: include_executions
-        in: query
-        description: True to include executions
-        schema:
-          type: boolean
-          default: true
-      - name: include_instructions
-        in: query
-        description: True to include instructions
-        schema:
-          type: boolean
-          default: false
-      - name: include_historical_orders
-        in: query
-        description: True to include historical orders
-        schema:
-          type: boolean
-          default: false
-      - name: include_competitive_rates
-        in: query
-        description: True to include competitive rates
-        schema:
-          type: boolean
-          default: false
-      - name: client_order_id
-        in: query
-        description: The client order id to query
-        schema:
-          type: array
-          items:
-            type: string
-      - name: filter_field
-        in: query
-        description: The name of a field on which to filter results
-        schema:
-          type: string
-      - name: filter_value
-        in: query
-        description: Only orders whose filter_field field has a value of exactly filter_value
-          are returned
-        schema:
-          type: string
-      - name: filter_min
-        in: query
-        description: Only orders whose filter_field field have a value greater than
-          filter_min are returned
-        schema:
-          type: string
-      - name: filter_max
-        in: query
-        description: Only orders whose filter_field field have a value less that filter_max
-          are returned
-        schema:
-          type: string
-      - name: timeout
-        in: query
-        description: Request timeout in milliseconds
-        schema:
-          type: integer
-          format: int64
-      responses:
-        "401":
-          description: Credentials are required to access this endpoint
-        "403":
-          description: User does not have the required permissions to access this
-            resource
-        "404":
-          description: An empty List of FX orders
-          content:
-            application/json:
-              schema:
-                minItems: 0
-                type: array
-                items:
-                  $ref: '#/components/schemas/BADLAlgoFxOrder'
-              example: []
-        "405":
-          description: The request method is not supported on this resource
-        "406":
-          description: The request does not support the media type that the server
-            is producing; check the "Accept" header in the request is valid
-        "414":
-          description: The request URL is too long
-        "415":
-          description: The endpoint does not support the media type that was sent;
-            check the "Content-Type" header in the request is valid
-        "500":
-          description: An error occurred while processing the request
-        "200":
-          description: A List of FX orders matching the query
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/BADLAlgoFxOrder'
-        "400":
-          description: An ErrorBuilder detailing the request failure
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
       security:
       - basicAuth: []
   /api/om/v3/fx:
@@ -2049,6 +1997,129 @@ paths:
                   $ref: '#/components/schemas/BADLAlgoFxOrder'
       security:
       - basicAuth: []
+  /api/om/v3/fx/paged:
+    get:
+      tags:
+      - Order
+      - FX
+      summary: Paged FX Order query
+      description: "Query all FX orders (or by order_ts_id/client_order_id) for the\
+        \ branch associated with the REST client username. This request responds with\
+        \ orders in a streaming fashion (Transfer-Encoding: chunked) and is the preferred\
+        \ method for querying large quantities of FX orders."
+      operationId: queryFxOrdersPaged_1
+      parameters:
+      - name: order_ts_id
+        in: query
+        description: The order ID to query
+        schema:
+          type: array
+          items:
+            type: string
+      - name: include_executions
+        in: query
+        description: True to include executions
+        schema:
+          type: boolean
+          default: true
+      - name: include_instructions
+        in: query
+        description: True to include instructions
+        schema:
+          type: boolean
+          default: false
+      - name: include_historical_orders
+        in: query
+        description: True to include historical orders
+        schema:
+          type: boolean
+          default: false
+      - name: include_competitive_rates
+        in: query
+        description: True to include competitive rates
+        schema:
+          type: boolean
+          default: false
+      - name: client_order_id
+        in: query
+        description: The client order id to query
+        schema:
+          type: array
+          items:
+            type: string
+      - name: filter_field
+        in: query
+        description: The name of a field on which to filter results
+        schema:
+          type: string
+      - name: filter_value
+        in: query
+        description: Only orders whose filter_field field has a value of exactly filter_value
+          are returned
+        schema:
+          type: string
+      - name: filter_min
+        in: query
+        description: Only orders whose filter_field field have a value greater than
+          filter_min are returned
+        schema:
+          type: string
+      - name: filter_max
+        in: query
+        description: Only orders whose filter_field field have a value less that filter_max
+          are returned
+        schema:
+          type: string
+      - name: timeout
+        in: query
+        description: Request timeout in milliseconds
+        schema:
+          type: integer
+          format: int64
+      responses:
+        "401":
+          description: Credentials are required to access this endpoint
+        "403":
+          description: User does not have the required permissions to access this
+            resource
+        "404":
+          description: An empty List of FX orders
+          content:
+            application/json:
+              schema:
+                minItems: 0
+                type: array
+                items:
+                  $ref: '#/components/schemas/BADLAlgoFxOrder'
+              example: []
+        "405":
+          description: The request method is not supported on this resource
+        "406":
+          description: The request does not support the media type that the server
+            is producing; check the "Accept" header in the request is valid
+        "414":
+          description: The request URL is too long
+        "415":
+          description: The endpoint does not support the media type that was sent;
+            check the "Content-Type" header in the request is valid
+        "500":
+          description: An error occurred while processing the request
+        "200":
+          description: A List of FX orders matching the query
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/BADLAlgoFxOrder'
+        "400":
+          description: An ErrorBuilder detailing the request failure
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      security:
+      - basicAuth: []
   /api/om/v3/fx/cancel:
     post:
       tags:
@@ -2201,6 +2272,15 @@ paths:
                 $ref: '#/components/schemas/FxOrderSubmitInstruction'
       security:
       - basicAuth: []
+  /application.wadl:
+    get:
+      operationId: getWadl
+      responses:
+        default:
+          description: default response
+          content:
+            application/vnd.sun.wadl+xml: {}
+            application/xml: {}
   /application.wadl/{path}:
     get:
       operationId: getExternalGrammar
@@ -2214,15 +2294,6 @@ paths:
         default:
           description: default response
           content:
-            application/xml: {}
-  /application.wadl:
-    get:
-      operationId: getWadl
-      responses:
-        default:
-          description: default response
-          content:
-            application/vnd.sun.wadl+xml: {}
             application/xml: {}
 components:
   schemas:
@@ -2345,13 +2416,12 @@ components:
           example: "SPOT, FWD"
           items:
             type: string
-            description: "Deal types for which this algo is applicable, unless empty\
-              \ (FORWARD can also be provided as FWD or OUTRIGHT)"
+            description: "Deal types for which this algo is applicable, unless empty"
             readOnly: true
-            example: "SPOT, FORWARD"
+            example: "SPOT, FWD"
             enum:
             - SPOT
-            - FORWARD
+            - FWD
             - SWAP
             - NDF
             - NDS
@@ -2677,10 +2747,11 @@ components:
             description: The currency pair to be traded
           deal_type:
             type: string
-            description: The deal type to be traded (FORWARD can also be provided as FWD or OUTRIGHT)
+            description: The deal type to be traded (FWD can also be provided as FORWARD
+              or OUTRIGHT)
             enum:
             - SPOT
-            - FORWARD
+            - FWD
             - SWAP
             - NDF
             - NDS
@@ -2695,8 +2766,7 @@ components:
             type: number
           far_dealt_ccy:
             type: string
-            description: The far leg dealt currency (must match the base or term from
-              the currency pair)
+            description: The far leg dealt currency (must match the dealt_ccy)
           far_executed_quantity:
             type: number
           far_fixing_date:
@@ -2768,6 +2838,13 @@ components:
             $ref: '#/components/schemas/V2FxAlgoDetails'
           isin:
             type: string
+          regulated_venue:
+            type: string
+            description: "The regulated venue for the order, i.e. NONE, UK_MTF, EU_MTF."
+            enum:
+            - NONE
+            - UK_MTF
+            - EU_MTF
           settlement_date:
             type: string
             description: The settlement date as "YYYY-MM-DD" (recommended but will
@@ -2825,6 +2902,9 @@ components:
             - IMMU
             - IMMZ
             - BD
+          ticket_shortcut_code:
+            type: string
+            description: The short code of the ticket shortcut
           unexecuted_quantity:
             type: number
             description: The unexecuted quantity
@@ -3065,10 +3145,11 @@ components:
           description: Custom fields that can be supplied to TS.  This is by agreement.
         deal_type:
           type: string
-          description: The deal type to be traded (FORWARD can also be provided as FWD or OUTRIGHT)
+          description: The deal type to be traded (FWD can also be provided as FORWARD
+            or OUTRIGHT)
           enum:
           - SPOT
-          - FORWARD
+          - FWD
           - SWAP
           - NDF
           - NDS
@@ -3130,8 +3211,7 @@ components:
           type: number
         far_dealt_ccy:
           type: string
-          description: The far leg dealt currency (must match the base or term from
-            the currency pair)
+          description: The far leg dealt currency (must match the dealt_ccy)
         far_executed_quantity:
           type: number
         far_fixing_date:
@@ -3350,6 +3430,13 @@ components:
         reference2:
           type: string
           description: An STP reference (varies from client to client).
+        regulated_venue:
+          type: string
+          description: "The regulated venue for the order, i.e. NONE, UK_MTF, EU_MTF."
+          enum:
+          - NONE
+          - UK_MTF
+          - EU_MTF
         settlement_date:
           type: string
           description: The settlement date as "YYYY-MM-DD" (recommended but will be
@@ -3502,6 +3589,9 @@ components:
           - REGISTRATION_PRICE
           - REGISTRATION_LAST
           - REGISTRATION_VWAP
+        ticket_shortcut_code:
+          type: string
+          description: The short code of the ticket shortcut
         time_in_force_type:
           type: string
           description: "The time in force (\"DAY\", \"GOOD_TILL_CANCEL\", \"GOOD_TILL_DATE\"\
@@ -3548,6 +3638,25 @@ components:
           type: integer
           description: The version of the order
           format: int32
+    FxAlgoDetailsBuilder:
+      required:
+      - name
+      - stop_pips
+      type: object
+      properties:
+        name:
+          type: object
+          additionalProperties:
+            type: string
+            description: The algo parameters
+          description: The algo parameters
+        stop_pips:
+          type: number
+          description: The algo stop price in pips
+        errors:
+          type: array
+          items:
+            $ref: '#/components/schemas/Error'
     FxBenchmarkDetails:
       required:
       - code
@@ -3570,6 +3679,213 @@ components:
           type: string
         provider_code:
           type: string
+    FxOrderBuilder:
+      required:
+      - asset_class
+      - ccy_pair
+      - deal_type
+      - dealt_ccy
+      - order_type
+      - quantity
+      - side
+      - tenor
+      type: object
+      allOf:
+      - $ref: '#/components/schemas/OrderObject'
+      - type: object
+        properties:
+          fxAlgoDetails:
+            $ref: '#/components/schemas/FxAlgoDetailsBuilder'
+          swap:
+            type: boolean
+          upInstructionBuilder:
+            $ref: '#/components/schemas/InstructionBuilderOrderFxOrderObject'
+          far_side:
+            type: string
+            description: "The side of the far leg of the order (\"BUY\", \"SELL\"\
+              ). Must be the opposite side of the near leg."
+            enum:
+            - BUY
+            - SELL
+            - BUY_PROTECTION
+            - SELL_PROTECTION
+          side:
+            type: string
+            description: "The side of the order (\"BUY\", \"SELL\")"
+            enum:
+            - BUY
+            - SELL
+            - BUY_PROTECTION
+            - SELL_PROTECTION
+          benchmark:
+            $ref: '#/components/schemas/FxBenchmarkDetails'
+          ticket_shortcut_code:
+            type: string
+            description: The short code of the ticket shortcut
+          far_tenor:
+            type: string
+            description: "The far leg tenor (\"SPOT\", \"1M\", \"2M\", \"1Y\", \"\
+              2Y\", \"BD\")"
+            enum:
+            - TOD
+            - TOM
+            - SPOT
+            - SPOT_NEXT
+            - 1W
+            - 2W
+            - 3W
+            - 1M
+            - 2M
+            - 3M
+            - 4M
+            - 5M
+            - 6M
+            - 7M
+            - 8M
+            - 9M
+            - 10M
+            - 11M
+            - 1Y
+            - 2Y
+            - 3Y
+            - IMMH
+            - IMMM
+            - IMMU
+            - IMMZ
+            - BD
+          deal_type:
+            type: string
+            description: The deal type to be traded (FWD can also be provided as FORWARD
+              or OUTRIGHT)
+            enum:
+            - SPOT
+            - FWD
+            - SWAP
+            - NDF
+            - NDS
+            - DEAL_OUTRIGHT
+            - SWAP_OUTRIGHT
+            - WILDCARD
+          far_settlement_date:
+            type: string
+            description: The far leg settlement date as "YYYY-MM-DD" (recommended
+              but will be computed from non "BD" far tenor if missing)
+            format: date
+          settlement_date:
+            type: string
+            description: The settlement date as "YYYY-MM-DD" (recommended but will
+              be computed from non "BD" tenor if missing)
+            format: date
+          all_in_price:
+            type: number
+            description: All in Price
+          far_all_in_price:
+            type: number
+          far_quantity:
+            type: number
+            description: The far leg dealt quantity
+            writeOnly: true
+          spot_rate:
+            type: number
+          forward_points:
+            type: number
+          swap_points:
+            type: number
+          fixing_date:
+            type: string
+            description: The fixing date as "YYYY-MM-DD" (recommended but will be
+              computed from tenor if missing)
+            format: date
+          tenor:
+            type: string
+            description: "The tenor of the order (\"SPOT\", \"1M\", \"2M\", \"1Y\"\
+              , \"2Y\", \"BD\")"
+            enum:
+            - TOD
+            - TOM
+            - SPOT
+            - SPOT_NEXT
+            - 1W
+            - 2W
+            - 3W
+            - 1M
+            - 2M
+            - 3M
+            - 4M
+            - 5M
+            - 6M
+            - 7M
+            - 8M
+            - 9M
+            - 10M
+            - 11M
+            - 1Y
+            - 2Y
+            - 3Y
+            - IMMH
+            - IMMM
+            - IMMU
+            - IMMZ
+            - BD
+          asset_class:
+            type: string
+            description: "The asset class of the order, FX"
+            enum:
+            - EQUITY
+            - FUTURE
+            - OPTION
+            - FX
+            - FIXED_INCOME
+            - CRYPTO
+            - PORTFOLIO
+            - CDS
+            - IRS
+            - STRATEGY
+            - WARRANT
+            - INDEX
+          regulated_venue:
+            type: string
+            description: "The regulated venue for the order, i.e. NONE, UK_MTF, EU_MTF."
+            enum:
+            - NONE
+            - UK_MTF
+            - EU_MTF
+          isin:
+            type: string
+          shaped_order_id:
+            type: string
+            description: The ID assigned by the shaping server if this order was the
+              result of merging multiple staged orders together. Can be used to reference
+              the order within the BidFX shaping server REST API.
+          swap_isin:
+            type: string
+          best_value:
+            type: boolean
+          ccy_pair:
+            type: string
+            description: The currency pair to be traded
+          dealt_ccy:
+            type: string
+            description: The dealt currency (must match the base or term from the
+              currency pair)
+          far_dealt_ccy:
+            type: string
+            description: The far leg dealt currency (must match the dealt_ccy)
+          far_executed_quantity:
+            type: number
+          far_fixing_date:
+            type: string
+            description: The far leg fixing date as "YYYY-MM-DD" (recommended but
+              will be computed from far tenor if missing)
+            format: date
+          far_forward_points:
+            type: number
+          far_isin:
+            type: string
+          unexecuted_quantity:
+            type: number
+            description: The unexecuted quantity
+            readOnly: true
     FxReferencePrice:
       type: object
       properties:
@@ -4065,6 +4381,9 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/Error'
+        internal:
+          type: boolean
+          description: TradingScreen provided algo
         name:
           type: string
           description: Algo name
@@ -4252,31 +4571,19 @@ components:
         executing_broker_name:
           type: string
           description: The name of the executing broker
+        owner:
+          type: string
+          description: The owner of the order (set from the REST client login).
         version:
           type: integer
           description: The version of the order
           format: int32
-        creation_date:
-          type: string
-          description: The order creation date
-        owner:
-          type: string
-          description: The owner of the order (set from the REST client login).
         reference1:
           type: string
           description: An STP reference (varies from client to client).
         description:
           type: string
           description: The description field
-        expiry_date:
-          type: string
-          description: The GTD expiry date. The input is treated as a local market
-            date according to the instrument specified. The return value will be a
-            UTC adjusted timestamp of midnight in exchange local time.
-          format: date
-        executing_broker:
-          type: string
-          description: The executing broker.
         strategy_parent_order_ts_id:
           type: string
           description: The strategy parent order ID.
@@ -4284,6 +4591,9 @@ components:
           type: string
           description: Uniquely identifies the order.
           readOnly: true
+        executing_broker:
+          type: string
+          description: The executing broker.
         classification:
           type: string
           enum:
@@ -4305,6 +4615,24 @@ components:
           - BROKER_VIEW_CLIENT_ROUTED
           - BROKER_VIEW_MANUAL
           - BROKER_VIEW_SYNTHETIC
+        partition_id:
+          type: integer
+          format: int32
+        creation_date:
+          type: string
+          description: The order creation date
+        quantity:
+          type: number
+          description: The quantity of the order (in number of shares or contracts).
+        price:
+          type: number
+          description: The price of the order (when price type is "LIMIT").
+        side:
+          type: string
+          description: "The side of the order (\"BUY\", \"SELL\")."
+          enum:
+          - BUY
+          - SELL
         executed_quantity:
           type: number
           description: The executed quantity
@@ -4313,21 +4641,6 @@ components:
           type: number
           description: The executed value
           readOnly: true
-        price:
-          type: number
-          description: The price of the order (when price type is "LIMIT").
-        quantity:
-          type: number
-          description: The quantity of the order (in number of shares or contracts).
-        side:
-          type: string
-          description: "The side of the order (\"BUY\", \"SELL\")."
-          enum:
-          - BUY
-          - SELL
-        partition_id:
-          type: integer
-          format: int32
         account:
           type: string
           description: The executing account.
@@ -4346,6 +4659,10 @@ components:
         average_executed_price:
           type: number
           description: The average executed price
+          readOnly: true
+        broker_order_id:
+          type: string
+          description: The unique ID of the order as assigned by the executing broker.
           readOnly: true
         cancel_response_time:
           type: string
@@ -4380,6 +4697,31 @@ components:
             type: string
             description: Custom fields that can be supplied to TS.  This is by agreement.
           description: Custom fields that can be supplied to TS.  This is by agreement.
+        fully_executed:
+          type: boolean
+          description: True if the order is fully executed
+          readOnly: true
+        executions:
+          type: array
+          description: Executions on the order (returned on the response).
+          readOnly: true
+          items:
+            $ref: '#/components/schemas/Execution'
+        expiry_date:
+          type: string
+          description: The GTD expiry date. The input is treated as a local market
+            date according to the instrument specified. The return value will be a
+            UTC adjusted timestamp of midnight in exchange local time.
+          format: date
+        start_date:
+          type: string
+          description: The GTD start date. The input is treated as a local market
+            date according to the instrument specified. The return value will be a
+            UTC adjusted timestamp of midnight in exchange local time.
+          format: date
+        handling_comment:
+          type: string
+          description: The handling comment.
         handling_type:
           type: string
           description: "The handling type (\"MANUAL\", \"AUTOMATIC\")."
@@ -4396,32 +4738,6 @@ components:
           - TURBO
           - IOI
           - ALLOCATION
-        reference2:
-          type: string
-          description: An STP reference (varies from client to client).
-        broker_order_id:
-          type: string
-          description: The unique ID of the order as assigned by the executing broker.
-          readOnly: true
-        fully_executed:
-          type: boolean
-          description: True if the order is fully executed
-          readOnly: true
-        executions:
-          type: array
-          description: Executions on the order (returned on the response).
-          readOnly: true
-          items:
-            $ref: '#/components/schemas/Execution'
-        start_date:
-          type: string
-          description: The GTD start date. The input is treated as a local market
-            date according to the instrument specified. The return value will be a
-            UTC adjusted timestamp of midnight in exchange local time.
-          format: date
-        handling_comment:
-          type: string
-          description: The handling comment.
         ioi_id:
           type: string
           description: The IOI Id against which the order has to be submitted
@@ -4486,6 +4802,9 @@ components:
           type: number
           description: "An offset from from the current price, used when defining\
             \ a trailing stop (for example)."
+        reference2:
+          type: string
+          description: An STP reference (varies from client to client).
         solicitation_type:
           type: string
           description: The solicitation type of the order
@@ -4773,6 +5092,472 @@ components:
         reason:
           type: string
           description: "The reason for the limit violation reject, sent to TradeSmart"
+        type:
+          type: string
+          description: "Type of the item (\"AMEND\", \"CANCEL\", \"SLICE\", \"SUBMIT\"\
+            \ )"
+          enum:
+          - ACKNOWLEDGEMENT
+          - AMEND
+          - CANCEL
+          - ORDER
+          - SLICE
+          - SUBMIT
+          - PRODUCT
+    PortfolioOrderAmendInstruction:
+      required:
+      - order_ts_id
+      type: object
+      properties:
+        account:
+          type: string
+          description: The account to book the order to.
+        aggregation_level_1:
+          type: string
+          description: Grouping reference assigned to the order
+        aggregation_level_2:
+          type: string
+          description: Grouping reference assigned to the order
+        aggregation_level_3:
+          type: string
+          description: Grouping reference assigned to the order
+        algo:
+          $ref: '#/components/schemas/OrderAlgo'
+        allocation_data:
+          $ref: '#/components/schemas/Allocation'
+        allocation_template:
+          type: string
+          description: "The allocation template name. Cannot be defined as well as\
+            \ allocation_data. Either account or allocation template is required;\
+            \ if both are supplied, the account will be replaced with the one from\
+            \ the template"
+        alternate_owner:
+          type: string
+          description: The alternative owner of the order
+        currency:
+          type: string
+          description: The currency.
+        custom_fields:
+          type: object
+          additionalProperties:
+            type: string
+            description: "Custom fields that can be supplied to TS by agreement. \
+              \ NOTE: Only those fields being amended need to be included, to remove\
+              \ a custom field supply it with an empty string.  You cannot remove\
+              \ ALL custom fields from an order once one is set, however you can replace\
+              \ custom fields by setting the one to remove to an empty string and\
+              \ adding a new field with a value"
+          description: "Custom fields that can be supplied to TS by agreement.  NOTE:\
+            \ Only those fields being amended need to be included, to remove a custom\
+            \ field supply it with an empty string.  You cannot remove ALL custom\
+            \ fields from an order once one is set, however you can replace custom\
+            \ fields by setting the one to remove to an empty string and adding a\
+            \ new field with a value"
+        description:
+          type: string
+        done:
+          type: boolean
+          description: Should the order be set to a DONE state?
+        errors:
+          type: array
+          items:
+            $ref: '#/components/schemas/Error'
+        executing_broker:
+          type: string
+          description: The executing broker.
+        expiry_date:
+          type: string
+        handling_comment:
+          type: string
+          description: The handling comment.
+        instruction_ts_id:
+          type: string
+          description: The id of the instruction.
+          readOnly: true
+        internal_comment:
+          type: string
+          description: Comment for internal use. (Comments column in Tradesmart)
+        manual_accept:
+          type: boolean
+          description: "A flag to indicate the operation must be accepted manually\
+            \ via the owning trader in TradeSmart. In the case of sliced orders, the\
+            \ children must be adjusted before the parent amend can be accepted"
+        name:
+          type: string
+        on_behalf_of:
+          type: string
+          description: "The manual activation behaviour for the order submitter (\"\
+            SELF\", \"OWNER\", \"ALTERNATE_OWNER\"). Defaults to \"SELF\" if not provided."
+          writeOnly: true
+          enum:
+          - SELF
+          - OWNER
+          - ALTERNATE_OWNER
+          - NEW_OWNER
+          - NEW_ALTERNATE_OWNER
+        orderFields:
+          $ref: '#/components/schemas/PortfolioOrder'
+        order_ts_id:
+          type: string
+          description: The unique order id of the order to apply this instruction
+            to
+        order_type:
+          type: string
+          description: "The type of the order (\"LIMIT\", \"MARKET\", \"QUOTED\",\
+            \ \"IMBALANCE_ONLY\")."
+          enum:
+          - MARKET
+          - MARKET_OPEN
+          - MARKET_CLOSE
+          - MARKET_ON_CASH_CLOSE
+          - LIMIT
+          - LIMIT_OPEN
+          - LIMIT_CLOSE
+          - FUNARI
+          - FILL_OR_KILL_LIMIT
+          - FILL_OR_KILL_MARKET
+          - QUOTED
+          - SPREAD_LIMIT
+          - STOP
+          - STOP_BID
+          - STOP_ASK
+          - STOP_LIMIT
+          - LIMIT_AUCTION_ONLY
+          - MARKET_AUCTION_ONLY
+          - MARKET_IF_TOUCHED
+          - TAKE
+          - TAKE_LIMIT
+          - CALL
+          - DISCRECTIONARY
+          - PEG_LAST
+          - PEG_MID
+          - PEG_MARKET
+          - PEG_PRIMARY
+          - ALL_OR_NONE
+          - AT_BEST
+          - IMMEDIATE_OR_CANCEL_LIMIT
+          - IMMEDIATE_OR_CANCEL_MARKET
+          - EXECUTE_AND_ELIMINATE
+          - DTC
+          - DTK
+          - ELO
+          - SLO
+          - FOKEL
+          - FOKSL
+          - PROBE
+          - PROBE_POST
+          - SWEEP
+          - SWEEP_POST_ALL
+          - SWEEP_POST
+          - SWEEP_POST_DIRECTED
+          - SWEEP_POST_HIDDEN
+          - MARKET_POST
+          - MARKET_WITH_LIMIT
+          - MIDPOINT
+          - MARKET_LIMIT_MARKET
+          - MARKET_WITH_LEFTOVER_AS_LIMIT
+          - NATIVE_ORDER_CANCELS_ORDER
+          - BID_OFFER
+          - MIDPOINT_WITH_LIMIT
+          - TRAILING_STOP
+          - TRAILING_STOP_LIMIT
+          - IMBALANCE_ONLY
+        owner:
+          type: string
+          description: The owner of the order (set from the REST client login).
+        partitionId:
+          type: integer
+          format: int32
+        price:
+          type: number
+          description: The price of the order (when price type is "LIMIT").
+        reason:
+          type: string
+          description: An arbitrary reason as to why the order is being amended. Populated
+            with a default value if not provided
+        reference1:
+          type: string
+          description: Client specified reference id 1
+        reference2:
+          type: string
+          description: Client specified reference id 2
+        short_type:
+          type: string
+          description: "The short type of the order (\"COMPLY\", \"COVER\", \"EXEMPT\"\
+            , \"UNDISCLOSED\")."
+          enum:
+          - COMPLY
+          - EXEMPT
+          - COVER
+          - UNDISCLOSED
+        state:
+          type: string
+          description: The state of the instruction
+          readOnly: true
+          enum:
+          - REGISTERED
+          - SUBMITTING_INTERNAL
+          - SUBMITTING_EXTERNAL
+          - ACCEPTED
+          - REJECTED
+          - RETRACTED
+          - BROKEN
+          - PENDING_PRICING
+          - PENDING_BROKER_SELECTION
+        submitter:
+          type: string
+          description: Submitter of the order as per on_behalf_of
+          readOnly: true
+        time_in_force_type:
+          type: string
+          enum:
+          - DAY
+          - GOOD_TILL_CANCEL
+          - GOOD_TILL_DATE
+          - GOOD_TILL_TIME
+          - GOOD_TILL_WEEK
+          - GOOD_TILL_DURATION
+          - GOOD_TILL_CROSS
+          - CLOSE
+        trigger_price:
+          type: number
+          description: The trigger price for stop orders
+        type:
+          type: string
+          description: "Type of the item (\"AMEND\", \"CANCEL\", \"SLICE\", \"SUBMIT\"\
+            \ )"
+          enum:
+          - ACKNOWLEDGEMENT
+          - AMEND
+          - CANCEL
+          - ORDER
+          - SLICE
+          - SUBMIT
+          - PRODUCT
+    FxOrderAmendInstruction:
+      required:
+      - order_ts_id
+      - quantity
+      type: object
+      properties:
+        account:
+          type: string
+          description: The account to book the order to.
+        aggregation_level_1:
+          type: string
+          description: Grouping reference assigned to the order
+        aggregation_level_2:
+          type: string
+          description: Grouping reference assigned to the order
+        aggregation_level_3:
+          type: string
+          description: Grouping reference assigned to the order
+        algo:
+          $ref: '#/components/schemas/OrderAlgo'
+        allocation_data:
+          $ref: '#/components/schemas/Allocation'
+        allocation_template:
+          type: string
+          description: "The allocation template name. Cannot be defined as well as\
+            \ allocation_data. Either account or allocation template is required;\
+            \ if both are supplied, the account will be replaced with the one from\
+            \ the template"
+        alternate_owner:
+          type: string
+          description: The alternative owner of the order
+        currency:
+          type: string
+          description: The currency.
+        custom_fields:
+          type: object
+          additionalProperties:
+            type: string
+            description: "Custom fields that can be supplied to TS by agreement. \
+              \ NOTE: Only those fields being amended need to be included, to remove\
+              \ a custom field supply it with an empty string.  You cannot remove\
+              \ ALL custom fields from an order once one is set, however you can replace\
+              \ custom fields by setting the one to remove to an empty string and\
+              \ adding a new field with a value"
+          description: "Custom fields that can be supplied to TS by agreement.  NOTE:\
+            \ Only those fields being amended need to be included, to remove a custom\
+            \ field supply it with an empty string.  You cannot remove ALL custom\
+            \ fields from an order once one is set, however you can replace custom\
+            \ fields by setting the one to remove to an empty string and adding a\
+            \ new field with a value"
+        done:
+          type: boolean
+          description: Should the order be set to a DONE state?
+        errors:
+          type: array
+          items:
+            $ref: '#/components/schemas/Error'
+        executing_broker:
+          type: string
+          description: The executing broker.
+        expiry_date:
+          type: string
+        far_quantity:
+          type: number
+          description: The allocation quantity of the far leg of an FX swap
+          writeOnly: true
+        handling_comment:
+          type: string
+          description: The handling comment.
+        instruction_ts_id:
+          type: string
+          description: The id of the instruction.
+          readOnly: true
+        internal_comment:
+          type: string
+          description: Comment for internal use. (Comments column in Tradesmart)
+        manual_accept:
+          type: boolean
+          description: "A flag to indicate the operation must be accepted manually\
+            \ via the owning trader in TradeSmart. In the case of sliced orders, the\
+            \ children must be adjusted before the parent amend can be accepted"
+        on_behalf_of:
+          type: string
+          description: "The manual activation behaviour for the order submitter (\"\
+            SELF\", \"OWNER\", \"ALTERNATE_OWNER\"). Defaults to \"SELF\" if not provided."
+          writeOnly: true
+          enum:
+          - SELF
+          - OWNER
+          - ALTERNATE_OWNER
+          - NEW_OWNER
+          - NEW_ALTERNATE_OWNER
+        orderFields:
+          $ref: '#/components/schemas/FxOrderBuilder'
+        order_ts_id:
+          type: string
+          description: The unique order id of the order to apply this instruction
+            to
+        order_type:
+          type: string
+          description: "The type of the order (\"LIMIT\", \"MARKET\", \"QUOTED\",\
+            \ \"IMBALANCE_ONLY\")."
+          enum:
+          - MARKET
+          - MARKET_OPEN
+          - MARKET_CLOSE
+          - MARKET_ON_CASH_CLOSE
+          - LIMIT
+          - LIMIT_OPEN
+          - LIMIT_CLOSE
+          - FUNARI
+          - FILL_OR_KILL_LIMIT
+          - FILL_OR_KILL_MARKET
+          - QUOTED
+          - SPREAD_LIMIT
+          - STOP
+          - STOP_BID
+          - STOP_ASK
+          - STOP_LIMIT
+          - LIMIT_AUCTION_ONLY
+          - MARKET_AUCTION_ONLY
+          - MARKET_IF_TOUCHED
+          - TAKE
+          - TAKE_LIMIT
+          - CALL
+          - DISCRECTIONARY
+          - PEG_LAST
+          - PEG_MID
+          - PEG_MARKET
+          - PEG_PRIMARY
+          - ALL_OR_NONE
+          - AT_BEST
+          - IMMEDIATE_OR_CANCEL_LIMIT
+          - IMMEDIATE_OR_CANCEL_MARKET
+          - EXECUTE_AND_ELIMINATE
+          - DTC
+          - DTK
+          - ELO
+          - SLO
+          - FOKEL
+          - FOKSL
+          - PROBE
+          - PROBE_POST
+          - SWEEP
+          - SWEEP_POST_ALL
+          - SWEEP_POST
+          - SWEEP_POST_DIRECTED
+          - SWEEP_POST_HIDDEN
+          - MARKET_POST
+          - MARKET_WITH_LIMIT
+          - MIDPOINT
+          - MARKET_LIMIT_MARKET
+          - MARKET_WITH_LEFTOVER_AS_LIMIT
+          - NATIVE_ORDER_CANCELS_ORDER
+          - BID_OFFER
+          - MIDPOINT_WITH_LIMIT
+          - TRAILING_STOP
+          - TRAILING_STOP_LIMIT
+          - IMBALANCE_ONLY
+        owner:
+          type: string
+          description: The owner of the order (set from the REST client login).
+        partitionId:
+          type: integer
+          format: int32
+        price:
+          type: number
+          description: The price of the order (when price type is "LIMIT").
+        quantity:
+          type: number
+          description: The quantity of the order (in number of shares or contracts).
+        reason:
+          type: string
+          description: An arbitrary reason as to why the order is being amended. Populated
+            with a default value if not provided
+        reference1:
+          type: string
+          description: Client specified reference id 1
+        reference2:
+          type: string
+          description: Client specified reference id 2
+        short_type:
+          type: string
+          description: "The short type of the order (\"COMPLY\", \"COVER\", \"EXEMPT\"\
+            , \"UNDISCLOSED\")."
+          enum:
+          - COMPLY
+          - EXEMPT
+          - COVER
+          - UNDISCLOSED
+        state:
+          type: string
+          description: The state of the instruction
+          readOnly: true
+          enum:
+          - REGISTERED
+          - SUBMITTING_INTERNAL
+          - SUBMITTING_EXTERNAL
+          - ACCEPTED
+          - REJECTED
+          - RETRACTED
+          - BROKEN
+          - PENDING_PRICING
+          - PENDING_BROKER_SELECTION
+        strategy_parent_order_ts_id:
+          type: string
+        submitter:
+          type: string
+          description: Submitter of the order as per on_behalf_of
+          readOnly: true
+        time_in_force_type:
+          type: string
+          enum:
+          - DAY
+          - GOOD_TILL_CANCEL
+          - GOOD_TILL_DATE
+          - GOOD_TILL_TIME
+          - GOOD_TILL_WEEK
+          - GOOD_TILL_DURATION
+          - GOOD_TILL_CROSS
+          - CLOSE
+        trigger_price:
+          type: number
+          description: The trigger price for stop orders
         type:
           type: string
           description: "Type of the item (\"AMEND\", \"CANCEL\", \"SLICE\", \"SUBMIT\"\
@@ -5161,1182 +5946,6 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/Error'
-    PortfolioOrderAmendInstruction:
-      required:
-      - order_ts_id
-      type: object
-      properties:
-        account:
-          type: string
-          description: The account to book the order to.
-        aggregation_level_1:
-          type: string
-          description: Grouping reference assigned to the order
-        aggregation_level_2:
-          type: string
-          description: Grouping reference assigned to the order
-        aggregation_level_3:
-          type: string
-          description: Grouping reference assigned to the order
-        algo:
-          $ref: '#/components/schemas/OrderAlgo'
-        allocation_data:
-          $ref: '#/components/schemas/Allocation'
-        allocation_template:
-          type: string
-          description: "The allocation template name. Cannot be defined as well as\
-            \ allocation_data. Either account or allocation template is required;\
-            \ if both are supplied, the account will be replaced with the one from\
-            \ the template"
-        alternate_owner:
-          type: string
-          description: The alternative owner of the order
-        currency:
-          type: string
-          description: The currency.
-        custom_fields:
-          type: object
-          additionalProperties:
-            type: string
-            description: "Custom fields that can be supplied to TS by agreement. \
-              \ NOTE: Only those fields being amended need to be included, to remove\
-              \ a custom field supply it with an empty string.  You cannot remove\
-              \ ALL custom fields from an order once one is set, however you can replace\
-              \ custom fields by setting the one to remove to an empty string and\
-              \ adding a new field with a value"
-          description: "Custom fields that can be supplied to TS by agreement.  NOTE:\
-            \ Only those fields being amended need to be included, to remove a custom\
-            \ field supply it with an empty string.  You cannot remove ALL custom\
-            \ fields from an order once one is set, however you can replace custom\
-            \ fields by setting the one to remove to an empty string and adding a\
-            \ new field with a value"
-        description:
-          type: string
-        done:
-          type: boolean
-          description: Should the order be set to a DONE state?
-        errors:
-          type: array
-          items:
-            $ref: '#/components/schemas/Error'
-        executing_broker:
-          type: string
-          description: The executing broker.
-        expiry_date:
-          type: string
-        handling_comment:
-          type: string
-          description: The handling comment.
-        instruction_ts_id:
-          type: string
-          description: The id of the instruction.
-          readOnly: true
-        internal_comment:
-          type: string
-          description: Comment for internal use. (Comments column in Tradesmart)
-        manual_accept:
-          type: boolean
-          description: "A flag to indicate the operation must be accepted manually\
-            \ via the owning trader in TradeSmart. In the case of sliced orders, the\
-            \ children must be adjusted before the parent amend can be accepted"
-        name:
-          type: string
-        on_behalf_of:
-          type: string
-          description: "The manual activation behaviour for the order submitter (\"\
-            SELF\", \"OWNER\", \"ALTERNATE_OWNER\"). Defaults to \"SELF\" if not provided."
-          writeOnly: true
-          enum:
-          - SELF
-          - OWNER
-          - ALTERNATE_OWNER
-          - NEW_OWNER
-          - NEW_ALTERNATE_OWNER
-        orderFields:
-          $ref: '#/components/schemas/PortfolioOrder'
-        order_ts_id:
-          type: string
-          description: The unique order id of the order to apply this instruction
-            to
-        order_type:
-          type: string
-          description: "The type of the order (\"LIMIT\", \"MARKET\", \"QUOTED\",\
-            \ \"IMBALANCE_ONLY\")."
-          enum:
-          - MARKET
-          - MARKET_OPEN
-          - MARKET_CLOSE
-          - MARKET_ON_CASH_CLOSE
-          - LIMIT
-          - LIMIT_OPEN
-          - LIMIT_CLOSE
-          - FUNARI
-          - FILL_OR_KILL_LIMIT
-          - FILL_OR_KILL_MARKET
-          - QUOTED
-          - SPREAD_LIMIT
-          - STOP
-          - STOP_BID
-          - STOP_ASK
-          - STOP_LIMIT
-          - LIMIT_AUCTION_ONLY
-          - MARKET_AUCTION_ONLY
-          - MARKET_IF_TOUCHED
-          - TAKE
-          - TAKE_LIMIT
-          - CALL
-          - DISCRECTIONARY
-          - PEG_LAST
-          - PEG_MID
-          - PEG_MARKET
-          - PEG_PRIMARY
-          - ALL_OR_NONE
-          - AT_BEST
-          - IMMEDIATE_OR_CANCEL_LIMIT
-          - IMMEDIATE_OR_CANCEL_MARKET
-          - EXECUTE_AND_ELIMINATE
-          - DTC
-          - DTK
-          - ELO
-          - SLO
-          - FOKEL
-          - FOKSL
-          - PROBE
-          - PROBE_POST
-          - SWEEP
-          - SWEEP_POST_ALL
-          - SWEEP_POST
-          - SWEEP_POST_DIRECTED
-          - SWEEP_POST_HIDDEN
-          - MARKET_POST
-          - MARKET_WITH_LIMIT
-          - MIDPOINT
-          - MARKET_LIMIT_MARKET
-          - MARKET_WITH_LEFTOVER_AS_LIMIT
-          - NATIVE_ORDER_CANCELS_ORDER
-          - BID_OFFER
-          - MIDPOINT_WITH_LIMIT
-          - TRAILING_STOP
-          - TRAILING_STOP_LIMIT
-          - IMBALANCE_ONLY
-        owner:
-          type: string
-          description: The owner of the order (set from the REST client login).
-        partitionId:
-          type: integer
-          format: int32
-        price:
-          type: number
-          description: The price of the order (when price type is "LIMIT").
-        reason:
-          type: string
-          description: An arbitrary reason as to why the order is being amended. Populated
-            with a default value if not provided
-        reference1:
-          type: string
-          description: Client specified reference id 1
-        reference2:
-          type: string
-          description: Client specified reference id 2
-        short_type:
-          type: string
-          description: "The short type of the order (\"COMPLY\", \"COVER\", \"EXEMPT\"\
-            , \"UNDISCLOSED\")."
-          enum:
-          - COMPLY
-          - EXEMPT
-          - COVER
-          - UNDISCLOSED
-        state:
-          type: string
-          description: The state of the instruction
-          readOnly: true
-          enum:
-          - REGISTERED
-          - SUBMITTING_INTERNAL
-          - SUBMITTING_EXTERNAL
-          - ACCEPTED
-          - REJECTED
-          - RETRACTED
-          - BROKEN
-          - PENDING_PRICING
-          - PENDING_BROKER_SELECTION
-        submitter:
-          type: string
-          description: Submitter of the order as per on_behalf_of
-          readOnly: true
-        time_in_force_type:
-          type: string
-          enum:
-          - DAY
-          - GOOD_TILL_CANCEL
-          - GOOD_TILL_DATE
-          - GOOD_TILL_TIME
-          - GOOD_TILL_WEEK
-          - GOOD_TILL_DURATION
-          - GOOD_TILL_CROSS
-          - CLOSE
-        trigger_price:
-          type: number
-          description: The trigger price for stop orders
-        type:
-          type: string
-          description: "Type of the item (\"AMEND\", \"CANCEL\", \"SLICE\", \"SUBMIT\"\
-            \ )"
-          enum:
-          - ACKNOWLEDGEMENT
-          - AMEND
-          - CANCEL
-          - ORDER
-          - SLICE
-          - SUBMIT
-          - PRODUCT
-    FxAlgoDetailsBuilder:
-      required:
-      - name
-      - stop_pips
-      type: object
-      properties:
-        name:
-          type: object
-          additionalProperties:
-            type: string
-            description: The algo parameters
-          description: The algo parameters
-        stop_pips:
-          type: number
-          description: The algo stop price in pips
-        errors:
-          type: array
-          items:
-            $ref: '#/components/schemas/Error'
-    FxOrderAmendInstruction:
-      required:
-      - order_ts_id
-      - quantity
-      type: object
-      properties:
-        account:
-          type: string
-          description: The account to book the order to.
-        aggregation_level_1:
-          type: string
-          description: Grouping reference assigned to the order
-        aggregation_level_2:
-          type: string
-          description: Grouping reference assigned to the order
-        aggregation_level_3:
-          type: string
-          description: Grouping reference assigned to the order
-        algo:
-          $ref: '#/components/schemas/OrderAlgo'
-        allocation_data:
-          $ref: '#/components/schemas/Allocation'
-        allocation_template:
-          type: string
-          description: "The allocation template name. Cannot be defined as well as\
-            \ allocation_data. Either account or allocation template is required;\
-            \ if both are supplied, the account will be replaced with the one from\
-            \ the template"
-        alternate_owner:
-          type: string
-          description: The alternative owner of the order
-        currency:
-          type: string
-          description: The currency.
-        custom_fields:
-          type: object
-          additionalProperties:
-            type: string
-            description: "Custom fields that can be supplied to TS by agreement. \
-              \ NOTE: Only those fields being amended need to be included, to remove\
-              \ a custom field supply it with an empty string.  You cannot remove\
-              \ ALL custom fields from an order once one is set, however you can replace\
-              \ custom fields by setting the one to remove to an empty string and\
-              \ adding a new field with a value"
-          description: "Custom fields that can be supplied to TS by agreement.  NOTE:\
-            \ Only those fields being amended need to be included, to remove a custom\
-            \ field supply it with an empty string.  You cannot remove ALL custom\
-            \ fields from an order once one is set, however you can replace custom\
-            \ fields by setting the one to remove to an empty string and adding a\
-            \ new field with a value"
-        done:
-          type: boolean
-          description: Should the order be set to a DONE state?
-        errors:
-          type: array
-          items:
-            $ref: '#/components/schemas/Error'
-        executing_broker:
-          type: string
-          description: The executing broker.
-        expiry_date:
-          type: string
-        far_quantity:
-          type: number
-          description: The allocation quantity of the far leg of an FX swap
-          writeOnly: true
-        handling_comment:
-          type: string
-          description: The handling comment.
-        instruction_ts_id:
-          type: string
-          description: The id of the instruction.
-          readOnly: true
-        internal_comment:
-          type: string
-          description: Comment for internal use. (Comments column in Tradesmart)
-        manual_accept:
-          type: boolean
-          description: "A flag to indicate the operation must be accepted manually\
-            \ via the owning trader in TradeSmart. In the case of sliced orders, the\
-            \ children must be adjusted before the parent amend can be accepted"
-        on_behalf_of:
-          type: string
-          description: "The manual activation behaviour for the order submitter (\"\
-            SELF\", \"OWNER\", \"ALTERNATE_OWNER\"). Defaults to \"SELF\" if not provided."
-          writeOnly: true
-          enum:
-          - SELF
-          - OWNER
-          - ALTERNATE_OWNER
-          - NEW_OWNER
-          - NEW_ALTERNATE_OWNER
-        orderFields:
-          $ref: '#/components/schemas/FxOrderBuilder'
-        order_ts_id:
-          type: string
-          description: The unique order id of the order to apply this instruction
-            to
-        order_type:
-          type: string
-          description: "The type of the order (\"LIMIT\", \"MARKET\", \"QUOTED\",\
-            \ \"IMBALANCE_ONLY\")."
-          enum:
-          - MARKET
-          - MARKET_OPEN
-          - MARKET_CLOSE
-          - MARKET_ON_CASH_CLOSE
-          - LIMIT
-          - LIMIT_OPEN
-          - LIMIT_CLOSE
-          - FUNARI
-          - FILL_OR_KILL_LIMIT
-          - FILL_OR_KILL_MARKET
-          - QUOTED
-          - SPREAD_LIMIT
-          - STOP
-          - STOP_BID
-          - STOP_ASK
-          - STOP_LIMIT
-          - LIMIT_AUCTION_ONLY
-          - MARKET_AUCTION_ONLY
-          - MARKET_IF_TOUCHED
-          - TAKE
-          - TAKE_LIMIT
-          - CALL
-          - DISCRECTIONARY
-          - PEG_LAST
-          - PEG_MID
-          - PEG_MARKET
-          - PEG_PRIMARY
-          - ALL_OR_NONE
-          - AT_BEST
-          - IMMEDIATE_OR_CANCEL_LIMIT
-          - IMMEDIATE_OR_CANCEL_MARKET
-          - EXECUTE_AND_ELIMINATE
-          - DTC
-          - DTK
-          - ELO
-          - SLO
-          - FOKEL
-          - FOKSL
-          - PROBE
-          - PROBE_POST
-          - SWEEP
-          - SWEEP_POST_ALL
-          - SWEEP_POST
-          - SWEEP_POST_DIRECTED
-          - SWEEP_POST_HIDDEN
-          - MARKET_POST
-          - MARKET_WITH_LIMIT
-          - MIDPOINT
-          - MARKET_LIMIT_MARKET
-          - MARKET_WITH_LEFTOVER_AS_LIMIT
-          - NATIVE_ORDER_CANCELS_ORDER
-          - BID_OFFER
-          - MIDPOINT_WITH_LIMIT
-          - TRAILING_STOP
-          - TRAILING_STOP_LIMIT
-          - IMBALANCE_ONLY
-        owner:
-          type: string
-          description: The owner of the order (set from the REST client login).
-        partitionId:
-          type: integer
-          format: int32
-        price:
-          type: number
-          description: The price of the order (when price type is "LIMIT").
-        quantity:
-          type: number
-          description: The quantity of the order (in number of shares or contracts).
-        reason:
-          type: string
-          description: An arbitrary reason as to why the order is being amended. Populated
-            with a default value if not provided
-        reference1:
-          type: string
-          description: Client specified reference id 1
-        reference2:
-          type: string
-          description: Client specified reference id 2
-        short_type:
-          type: string
-          description: "The short type of the order (\"COMPLY\", \"COVER\", \"EXEMPT\"\
-            , \"UNDISCLOSED\")."
-          enum:
-          - COMPLY
-          - EXEMPT
-          - COVER
-          - UNDISCLOSED
-        state:
-          type: string
-          description: The state of the instruction
-          readOnly: true
-          enum:
-          - REGISTERED
-          - SUBMITTING_INTERNAL
-          - SUBMITTING_EXTERNAL
-          - ACCEPTED
-          - REJECTED
-          - RETRACTED
-          - BROKEN
-          - PENDING_PRICING
-          - PENDING_BROKER_SELECTION
-        strategy_parent_order_ts_id:
-          type: string
-        submitter:
-          type: string
-          description: Submitter of the order as per on_behalf_of
-          readOnly: true
-        time_in_force_type:
-          type: string
-          enum:
-          - DAY
-          - GOOD_TILL_CANCEL
-          - GOOD_TILL_DATE
-          - GOOD_TILL_TIME
-          - GOOD_TILL_WEEK
-          - GOOD_TILL_DURATION
-          - GOOD_TILL_CROSS
-          - CLOSE
-        trigger_price:
-          type: number
-          description: The trigger price for stop orders
-        type:
-          type: string
-          description: "Type of the item (\"AMEND\", \"CANCEL\", \"SLICE\", \"SUBMIT\"\
-            \ )"
-          enum:
-          - ACKNOWLEDGEMENT
-          - AMEND
-          - CANCEL
-          - ORDER
-          - SLICE
-          - SUBMIT
-          - PRODUCT
-    FxOrderBuilder:
-      required:
-      - asset_class
-      - ccy_pair
-      - deal_type
-      - dealt_ccy
-      - order_type
-      - quantity
-      - side
-      - tenor
-      type: object
-      properties:
-        swap:
-          type: boolean
-        fxAlgoDetails:
-          $ref: '#/components/schemas/FxAlgoDetailsBuilder'
-        strategyTSIdsForClone:
-          type: array
-          writeOnly: true
-          items:
-            type: string
-        upInstructionBuilder:
-          $ref: '#/components/schemas/InstructionBuilderOrderFxOrderObject'
-        excluded_executing_brokers:
-          type: array
-          description: Do not send order to executing brokers in this array. Mutually
-            exclusive with 'included_executing_brokers'.
-          items:
-            type: string
-            description: Do not send order to executing brokers in this array. Mutually
-              exclusive with 'included_executing_brokers'.
-        included_executing_brokers:
-          type: array
-          description: Can only send order to executing brokers in this array. Mutually
-            exclusive with 'excluded_executing_brokers'.
-          items:
-            type: string
-            description: Can only send order to executing brokers in this array. Mutually
-              exclusive with 'excluded_executing_brokers'.
-        allocation_data:
-          $ref: '#/components/schemas/Allocation'
-        algo:
-          $ref: '#/components/schemas/OrderAlgo'
-        allocation_template:
-          type: string
-          description: "The allocation template name. Cannot be defined as well as\
-            \ allocation_data. Either account or allocation template is required;\
-            \ if both are supplied, the account will be replaced with the one from\
-            \ the template."
-          writeOnly: true
-        competitive_rates:
-          type: array
-          description: Competetive rates for the Order
-          items:
-            $ref: '#/components/schemas/ReferencePrice'
-        correlation_id:
-          type: string
-          description: Use to correlate order requests and responses (returned on
-            the response).
-        order_instruction:
-          type: string
-          description: "The instruction behaviour for the order (\"REGISTER\", \"\
-            SUBMIT, \"TRADE_ENTRY\"). Defaults to \"REGISTER\" if not provided. If\
-            \ submitting directly to market a trade entitlement check will be enforced."
-          writeOnly: true
-          enum:
-          - REGISTER
-          - SUBMIT
-          - TRADE_ENTRY
-        on_behalf_of:
-          type: string
-          description: "The manual activation behaviour for the order submitter (\"\
-            SELF\", \"OWNER\", \"ALTERNATE_OWNER\"). Defaults to \"SELF\" if not provided."
-          writeOnly: true
-          enum:
-          - SELF
-          - OWNER
-          - ALTERNATE_OWNER
-          - NEW_OWNER
-          - NEW_ALTERNATE_OWNER
-        leg_index:
-          type: integer
-          description: The index of this order in the legs array
-          format: int64
-        disable_instrument_lookup:
-          type: boolean
-          description: "Sets the order endpoint up to bypass instrument validation,\
-            \ instead deferring it to downstream systems.  Setting this field to true\
-            \ implies that the instrument, instrument_type and venue_code have to\
-            \ be set.  The venue_code must be the exchange (or OTC).  If one of these\
-            \ parameters is missing or incorrect the entire trade will be rejected.\
-            \  Invalid on Strategy order types."
-        order_type:
-          type: string
-          description: The type of the order.
-          enum:
-          - MARKET
-          - MARKET_OPEN
-          - MARKET_CLOSE
-          - MARKET_ON_CASH_CLOSE
-          - LIMIT
-          - LIMIT_OPEN
-          - LIMIT_CLOSE
-          - FUNARI
-          - FILL_OR_KILL_LIMIT
-          - FILL_OR_KILL_MARKET
-          - QUOTED
-          - SPREAD_LIMIT
-          - STOP
-          - STOP_BID
-          - STOP_ASK
-          - STOP_LIMIT
-          - LIMIT_AUCTION_ONLY
-          - MARKET_AUCTION_ONLY
-          - MARKET_IF_TOUCHED
-          - TAKE
-          - TAKE_LIMIT
-          - CALL
-          - DISCRECTIONARY
-          - PEG_LAST
-          - PEG_MID
-          - PEG_MARKET
-          - PEG_PRIMARY
-          - ALL_OR_NONE
-          - AT_BEST
-          - IMMEDIATE_OR_CANCEL_LIMIT
-          - IMMEDIATE_OR_CANCEL_MARKET
-          - EXECUTE_AND_ELIMINATE
-          - DTC
-          - DTK
-          - ELO
-          - SLO
-          - FOKEL
-          - FOKSL
-          - PROBE
-          - PROBE_POST
-          - SWEEP
-          - SWEEP_POST_ALL
-          - SWEEP_POST
-          - SWEEP_POST_DIRECTED
-          - SWEEP_POST_HIDDEN
-          - MARKET_POST
-          - MARKET_WITH_LIMIT
-          - MIDPOINT
-          - MARKET_LIMIT_MARKET
-          - MARKET_WITH_LEFTOVER_AS_LIMIT
-          - NATIVE_ORDER_CANCELS_ORDER
-          - BID_OFFER
-          - MIDPOINT_WITH_LIMIT
-          - TRAILING_STOP
-          - TRAILING_STOP_LIMIT
-          - IMBALANCE_ONLY
-        time_in_force_type:
-          type: string
-          description: "The time in force (\"DAY\", \"GOOD_TILL_CANCEL\", \"GOOD_TILL_DATE\"\
-            )."
-          enum:
-          - DAY
-          - GOOD_TILL_CANCEL
-          - GOOD_TILL_DATE
-          - GOOD_TILL_TIME
-          - GOOD_TILL_WEEK
-          - GOOD_TILL_DURATION
-          - GOOD_TILL_CROSS
-          - CLOSE
-        executing_broker_name:
-          type: string
-          description: The name of the executing broker
-        far_side:
-          type: string
-          description: "The side of the far leg of the order (\"BUY\", \"SELL\").\
-            \ Must be the opposite side of the near leg."
-          enum:
-          - BUY
-          - SELL
-          - BUY_PROTECTION
-          - SELL_PROTECTION
-        side:
-          type: string
-          description: "The side of the order (\"BUY\", \"SELL\")"
-          enum:
-          - BUY
-          - SELL
-          - BUY_PROTECTION
-          - SELL_PROTECTION
-        benchmark:
-          $ref: '#/components/schemas/FxBenchmarkDetails'
-        far_tenor:
-          type: string
-          description: "The far leg tenor (\"SPOT\", \"1M\", \"2M\", \"1Y\", \"2Y\"\
-            , \"BD\")"
-          enum:
-          - TOD
-          - TOM
-          - SPOT
-          - SPOT_NEXT
-          - 1W
-          - 2W
-          - 3W
-          - 1M
-          - 2M
-          - 3M
-          - 4M
-          - 5M
-          - 6M
-          - 7M
-          - 8M
-          - 9M
-          - 10M
-          - 11M
-          - 1Y
-          - 2Y
-          - 3Y
-          - IMMH
-          - IMMM
-          - IMMU
-          - IMMZ
-          - BD
-        deal_type:
-          type: string
-          description: The deal type to be traded (FORWARD can also be provided as FWD or OUTRIGHT)
-          enum:
-          - SPOT
-          - FORWARD
-          - SWAP
-          - NDF
-          - NDS
-          - DEAL_OUTRIGHT
-          - SWAP_OUTRIGHT
-          - WILDCARD
-        far_settlement_date:
-          type: string
-          description: The far leg settlement date as "YYYY-MM-DD" (recommended but
-            will be computed from non "BD" far tenor if missing)
-          format: date
-        all_in_price:
-          type: number
-          description: All in Price
-        far_all_in_price:
-          type: number
-        far_quantity:
-          type: number
-          description: The far leg dealt quantity
-          writeOnly: true
-        settlement_date:
-          type: string
-          description: The settlement date as "YYYY-MM-DD" (recommended but will be
-            computed from non "BD" tenor if missing)
-          format: date
-        spot_rate:
-          type: number
-        forward_points:
-          type: number
-        swap_points:
-          type: number
-        fixing_date:
-          type: string
-          description: The fixing date as "YYYY-MM-DD" (recommended but will be computed
-            from tenor if missing)
-          format: date
-        tenor:
-          type: string
-          description: "The tenor of the order (\"SPOT\", \"1M\", \"2M\", \"1Y\",\
-            \ \"2Y\", \"BD\")"
-          enum:
-          - TOD
-          - TOM
-          - SPOT
-          - SPOT_NEXT
-          - 1W
-          - 2W
-          - 3W
-          - 1M
-          - 2M
-          - 3M
-          - 4M
-          - 5M
-          - 6M
-          - 7M
-          - 8M
-          - 9M
-          - 10M
-          - 11M
-          - 1Y
-          - 2Y
-          - 3Y
-          - IMMH
-          - IMMM
-          - IMMU
-          - IMMZ
-          - BD
-        best_value:
-          type: boolean
-        ccy_pair:
-          type: string
-          description: The currency pair to be traded
-        dealt_ccy:
-          type: string
-          description: The dealt currency (must match the base or term from the currency
-            pair)
-        far_dealt_ccy:
-          type: string
-          description: The far leg dealt currency (must match the base or term from
-            the currency pair)
-        far_executed_quantity:
-          type: number
-        far_fixing_date:
-          type: string
-          description: The far leg fixing date as "YYYY-MM-DD" (recommended but will
-            be computed from far tenor if missing)
-          format: date
-        asset_class:
-          type: string
-          description: "The asset class of the order, FX"
-          enum:
-          - EQUITY
-          - FUTURE
-          - OPTION
-          - FX
-          - FIXED_INCOME
-          - CRYPTO
-          - PORTFOLIO
-          - CDS
-          - IRS
-          - STRATEGY
-          - WARRANT
-          - INDEX
-        far_forward_points:
-          type: number
-        far_isin:
-          type: string
-        isin:
-          type: string
-        shaped_order_id:
-          type: string
-          description: The ID assigned by the shaping server if this order was the
-            result of merging multiple staged orders together. Can be used to reference
-            the order within the BidFX shaping server REST API.
-        swap_isin:
-          type: string
-        unexecuted_quantity:
-          type: number
-          description: The unexecuted quantity
-          readOnly: true
-        version:
-          type: integer
-          description: The version of the order
-          format: int32
-        creation_date:
-          type: string
-          description: The order creation date
-        owner:
-          type: string
-          description: The owner of the order (set from the REST client login).
-        reference1:
-          type: string
-          description: An STP reference (varies from client to client).
-        description:
-          type: string
-          description: The description field
-        expiry_date:
-          type: string
-          description: The GTD expiry date. The input is treated as a local market
-            date according to the instrument specified. The return value will be a
-            UTC adjusted timestamp of midnight in exchange local time.
-          format: date
-        executing_broker:
-          type: string
-          description: The executing broker.
-        strategy_parent_order_ts_id:
-          type: string
-          description: The strategy parent order ID.
-        order_ts_id:
-          type: string
-          description: Uniquely identifies the order.
-          readOnly: true
-        classification:
-          type: string
-          enum:
-          - "NULL"
-          - DMA
-          - NOE
-          - MANUAL
-          - QUOTED
-          - BROKER_ROUTED
-          - CLIENT_ROUTED
-          - BROKER_VIEW
-          - ALLEGED
-          - SYNTHETIC
-          - CLIENT_ROUTED_DMA
-          - CLIENT_ROUTED_MANUAL
-          - BROKER_ROUTED_NOE
-          - BROKER_VIEW_DMA
-          - BROKER_VIEW_NOE
-          - BROKER_VIEW_CLIENT_ROUTED
-          - BROKER_VIEW_MANUAL
-          - BROKER_VIEW_SYNTHETIC
-        executed_quantity:
-          type: number
-          description: The executed quantity
-          readOnly: true
-        executed_value:
-          type: number
-          description: The executed value
-          readOnly: true
-        price:
-          type: number
-          description: The price of the order (when price type is "LIMIT").
-        quantity:
-          type: number
-          description: The quantity of the order (in number of shares or contracts).
-        partition_id:
-          type: integer
-          format: int32
-        account:
-          type: string
-          description: The executing account.
-        aggregation_level_1:
-          type: string
-          description: Reference assigned to the order.
-        aggregation_level_2:
-          type: string
-          description: Reference assigned to the order.
-        aggregation_level_3:
-          type: string
-          description: Reference assigned to the order.
-        alternate_owner:
-          type: string
-          description: The alternative owner of the order
-        average_executed_price:
-          type: number
-          description: The average executed price
-          readOnly: true
-        cancel_response_time:
-          type: string
-          description: "The time the order cancel operation was acknowledged by the\
-            \ broker. Note that orders can be resubmitted to other brokers after cancellation,\
-            \ this field will only contain the time pertaining to the last processed\
-            \ cancel."
-          format: date-time
-          readOnly: true
-        cancel_time:
-          type: string
-          description: "The time the order cancel operation was received. Note that\
-            \ orders can be resubmitted to other brokers after cancellation, this\
-            \ field will only contain the time pertaining to the last cancel instruction."
-          format: date-time
-          readOnly: true
-        capture_date:
-          type: string
-          description: "The capture date.  Only valid to be set on \"order_instruction\"\
-            \ : \"TRADE_ENTRY\" requests"
-          format: date-time
-        children:
-          type: array
-          description: Child Orders
-          items:
-            $ref: '#/components/schemas/OrderObject'
-        client_lei:
-          type: string
-          description: A 20 character string identifying the entity that issued the
-            trade or made the investment decision
-        client_order_id:
-          type: string
-          description: Client defined Order Id
-        custom_fields:
-          type: object
-          additionalProperties:
-            type: string
-            description: Custom fields that can be supplied to TS.  This is by agreement.
-          description: Custom fields that can be supplied to TS.  This is by agreement.
-        handling_type:
-          type: string
-          description: "The handling type (\"MANUAL\", \"AUTOMATIC\")."
-          enum:
-          - MANUAL
-          - AUTOMATIC
-          - TRADE_REPORT
-          - COLOR_BOOK
-          - EITHER
-          - RFS
-          - RFQ
-          - RESTING
-          - INSTRUMENT_DEFINITION
-          - TURBO
-          - IOI
-          - ALLOCATION
-        reference2:
-          type: string
-          description: An STP reference (varies from client to client).
-        broker_order_id:
-          type: string
-          description: The unique ID of the order as assigned by the executing broker.
-          readOnly: true
-        fully_executed:
-          type: boolean
-          description: True if the order is fully executed
-          readOnly: true
-        executions:
-          type: array
-          description: Executions on the order (returned on the response).
-          readOnly: true
-          items:
-            $ref: '#/components/schemas/Execution'
-        start_date:
-          type: string
-          description: The GTD start date. The input is treated as a local market
-            date according to the instrument specified. The return value will be a
-            UTC adjusted timestamp of midnight in exchange local time.
-          format: date
-        handling_comment:
-          type: string
-          description: The handling comment.
-        ioi_id:
-          type: string
-          description: The IOI Id against which the order has to be submitted
-        instructions:
-          type: array
-          description: Instructions on the order (returned on the response).
-          readOnly: true
-          items:
-            $ref: '#/components/schemas/InstructionBuilder'
-        internal_comment:
-          type: string
-          description: Comment for internal use. (Comments column in Tradesmart)
-        leg_ratio:
-          type: number
-          description: The leg ratio for strategy legs
-        limit_violations:
-          type: array
-          description: List of limit violation objects detailing the compliance limits
-            that this order has breached along with their status.
-          readOnly: true
-          items:
-            $ref: '#/components/schemas/LimitViolation'
-        line_handler_order_id:
-          type: string
-        order_manager_state:
-          type: string
-          enum:
-          - ACCEPTED
-          - ACTIVE
-          - ALLEGED
-          - ALLOCATED
-          - AMENDING
-          - BOOKED
-          - BROKEN
-          - CANCELING
-          - CANCELLED
-          - DEACTIVATED
-          - DEFERRED
-          - DELETED
-          - DONE
-          - EXECUTED
-          - EXPIRED
-          - PARTIALLY_ALLOCATED
-          - PARTIALLY_BOOKED
-          - PENDING_ACCEPTANCE
-          - PENDING_ALLOCATION
-          - PENDING_AUTHORIZATION
-          - PENDING_CANCELATION
-          - REGISTERED
-          - REJECTED
-          - SETTLED
-          - SUBMITTING
-          - TRADING_COMPLETE
-          - UNALLOCATED
-          - WORKING
-          - MANAGED
-        parent_order_ts_id:
-          type: string
-          description: Uniquely identifies the parent order.
-          readOnly: true
-        price_offset:
-          type: number
-          description: "An offset from from the current price, used when defining\
-            \ a trailing stop (for example)."
-        solicitation_type:
-          type: string
-          description: The solicitation type of the order
-          enum:
-          - DISCRETIONARY
-          - SOLICITATED
-          - UNSOLICITATED
-        source_id:
-          type: string
-          description: The order originator
-        source_intent:
-          type: string
-          description: The intended trading / execution stategy by the order originator.
-        submit_response_time:
-          type: string
-          description: "The time the order submit operation was acknowledged by the\
-            \ broker. Note that orders can be resubmitted to other brokers after cancellation,\
-            \ this field will only contain the time pertaining to the last processed\
-            \ submission. Note that accepted and rejected submissions will populate\
-            \ this field."
-          format: date-time
-          readOnly: true
-        submit_time:
-          type: string
-          description: "The time the order submit operation was initiated inside the\
-            \ TS EMS. Note that orders can be resubmitted to other brokers after cancellation,\
-            \ this field will only contain the time pertaining to the last processed\
-            \ submission. Note that accepted and rejected submissions will populate\
-            \ this field."
-          format: date-time
-          readOnly: true
-        tep:
-          type: number
-          description: Target execution price. Can only be specified is TEP type is
-            "MANUAL" or not specified.
-        tep_type:
-          type: string
-          description: "Target execution price type. (\"MANUAL\", \"OPEN\", \"CLOSE\"\
-            , \"REGISTRATION_PRICE\", \"REGISTRATION_VWAP\", \"REGISTRATION_LAST\"\
-            ) If this field is omitted and TEP is specified, a value of MANUAL will\
-            \ be inferred."
-          enum:
-          - MANUAL
-          - OPEN
-          - CLOSE
-          - REGISTRATION_PRICE
-          - REGISTRATION_LAST
-          - REGISTRATION_VWAP
-        trigger_price:
-          type: number
-          description: The trigger price for stop orders
-        uuid:
-          type: number
-          description: Uniquely identifies the order.
-          readOnly: true
-        venue_duration:
-          type: integer
-          description: Duration in milliseconds till when placement will be valid
-          format: int32
-        orders_in_error:
-          type: array
-          items:
-            $ref: '#/components/schemas/OrderObject'
-        state:
-          type: string
-          description: "The state of the order (\"REGISTERED\", \"ACTIVE\", \"WORKING\"\
-            )."
-          readOnly: true
-          enum:
-          - ACCEPTED
-          - ACTIVE
-          - ALLEGED
-          - ALLOCATED
-          - AMENDING
-          - BOOKED
-          - BROKEN
-          - CANCELING
-          - CANCELLED
-          - DEACTIVATED
-          - DEFERRED
-          - DELETED
-          - DONE
-          - EXECUTED
-          - EXPIRED
-          - PARTIALLY_ALLOCATED
-          - PARTIALLY_BOOKED
-          - PENDING_ACCEPTANCE
-          - PENDING_ALLOCATION
-          - PENDING_AUTHORIZATION
-          - PENDING_CANCELATION
-          - REGISTERED
-          - REJECTED
-          - SETTLED
-          - SUBMITTING
-          - TRADING_COMPLETE
-          - UNALLOCATED
-          - WORKING
-          - MANAGED
-        type:
-          type: string
-          description: "Type of the item (\"AMEND\", \"CANCEL\", \"SLICE\", \"SUBMIT\"\
-            , )"
-          enum:
-          - ACKNOWLEDGEMENT
-          - AMEND
-          - CANCEL
-          - ORDER
-          - SLICE
-          - SUBMIT
-          - PRODUCT
-        errors:
-          type: array
-          items:
-            $ref: '#/components/schemas/Error'
     Algo:
       type: object
       properties:
@@ -6371,13 +5980,12 @@ components:
           example: "SPOT, FWD"
           items:
             type: string
-            description: "Deal types for which this algo is applicable, unless empty\
-              \ (FORWARD can also be provided as FWD or OUTRIGHT)"
+            description: "Deal types for which this algo is applicable, unless empty"
             readOnly: true
-            example: "SPOT, FORWARD"
+            example: "SPOT, FWD"
             enum:
             - SPOT
-            - FORWARD
+            - FWD
             - SWAP
             - NDF
             - NDS
