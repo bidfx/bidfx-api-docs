@@ -56,12 +56,7 @@ paths:
           content:
             '*/*': {}
     put:
-      operationId: put
-      requestBody:
-        content:
-          '*/*':
-            schema:
-              type: string
+      operationId: putMultiPart
       responses:
         default:
           description: default response
@@ -2838,13 +2833,17 @@ components:
             $ref: '#/components/schemas/V2FxAlgoDetails'
           isin:
             type: string
+          matched_principal:
+            type: boolean
+            description: "Where the facilitator of the trade takes no risk, only matching\
+              \ counterparties."
           regulated_venue:
             type: string
-            description: "The regulated venue for the order, i.e. NONE, UK_MTF, EU_MTF."
-            enum:
-            - NONE
-            - UK_MTF
-            - EU_MTF
+            description: "The regulated venue for the order, e.g. UK, EU, US."
+          security_financing_transaction:
+            type: boolean
+            description: Transactions that fall within the scope of activity for securities
+              financing.
           settlement_date:
             type: string
             description: The settlement date as "YYYY-MM-DD" (recommended but will
@@ -3340,6 +3339,10 @@ components:
             $ref: '#/components/schemas/LimitViolation'
         line_handler_order_id:
           type: string
+        matched_principal:
+          type: boolean
+          description: "Where the facilitator of the trade takes no risk, only matching\
+            \ counterparties."
         on_behalf_of:
           type: string
           description: "The manual activation behaviour for the order submitter (\"\
@@ -3433,10 +3436,10 @@ components:
         regulated_venue:
           type: string
           description: "The regulated venue for the order, i.e. NONE, UK_MTF, EU_MTF."
-          enum:
-          - NONE
-          - UK_MTF
-          - EU_MTF
+        security_financing_transaction:
+          type: boolean
+          description: Transactions that fall within the scope of activity for securities
+            financing.
         settlement_date:
           type: string
           description: The settlement date as "YYYY-MM-DD" (recommended but will be
@@ -3843,22 +3846,19 @@ components:
             - STRATEGY
             - WARRANT
             - INDEX
+          swap_isin:
+            type: string
           regulated_venue:
             type: string
             description: "The regulated venue for the order, i.e. NONE, UK_MTF, EU_MTF."
-            enum:
-            - NONE
-            - UK_MTF
-            - EU_MTF
-          isin:
-            type: string
-          shaped_order_id:
-            type: string
-            description: The ID assigned by the shaping server if this order was the
-              result of merging multiple staged orders together. Can be used to reference
-              the order within the BidFX shaping server REST API.
-          swap_isin:
-            type: string
+          matched_principal:
+            type: boolean
+            description: "Where the facilitator of the trade takes no risk, only matching\
+              \ counterparties."
+          security_financing_transaction:
+            type: boolean
+            description: Transactions that fall within the scope of activity for securities
+              financing.
           best_value:
             type: boolean
           ccy_pair:
@@ -3882,6 +3882,13 @@ components:
             type: number
           far_isin:
             type: string
+          isin:
+            type: string
+          shaped_order_id:
+            type: string
+            description: The ID assigned by the shaping server if this order was the
+              result of merging multiple staged orders together. Can be used to reference
+              the order within the BidFX shaping server REST API.
           unexecuted_quantity:
             type: number
             description: The unexecuted quantity
@@ -4001,18 +4008,6 @@ components:
           type: string
           description: An arbitrary reason as to why the order is being amended. Populated
             with a default value if not provided
-        order_ts_id:
-          type: string
-          description: The unique order id of the order to apply this instruction
-            to
-        instruction_ts_id:
-          type: string
-          description: The id of the instruction.
-          readOnly: true
-        submitter:
-          type: string
-          description: Submitter of the order as per on_behalf_of
-          readOnly: true
         state:
           type: string
           description: The state of the instruction
@@ -4039,6 +4034,18 @@ components:
           - SLICE
           - SUBMIT
           - PRODUCT
+        order_ts_id:
+          type: string
+          description: The unique order id of the order to apply this instruction
+            to
+        instruction_ts_id:
+          type: string
+          description: The id of the instruction.
+          readOnly: true
+        submitter:
+          type: string
+          description: Submitter of the order as per on_behalf_of
+          readOnly: true
         errors:
           type: array
           items:
@@ -4073,18 +4080,6 @@ components:
           type: string
           description: An arbitrary reason as to why the order is being amended. Populated
             with a default value if not provided
-        order_ts_id:
-          type: string
-          description: The unique order id of the order to apply this instruction
-            to
-        instruction_ts_id:
-          type: string
-          description: The id of the instruction.
-          readOnly: true
-        submitter:
-          type: string
-          description: Submitter of the order as per on_behalf_of
-          readOnly: true
         state:
           type: string
           description: The state of the instruction
@@ -4111,6 +4106,18 @@ components:
           - SLICE
           - SUBMIT
           - PRODUCT
+        order_ts_id:
+          type: string
+          description: The unique order id of the order to apply this instruction
+            to
+        instruction_ts_id:
+          type: string
+          description: The id of the instruction.
+          readOnly: true
+        submitter:
+          type: string
+          description: Submitter of the order as per on_behalf_of
+          readOnly: true
         errors:
           type: array
           items:
@@ -4143,18 +4150,6 @@ components:
           type: string
           description: An arbitrary reason as to why the order is being amended. Populated
             with a default value if not provided
-        order_ts_id:
-          type: string
-          description: The unique order id of the order to apply this instruction
-            to
-        instruction_ts_id:
-          type: string
-          description: The id of the instruction.
-          readOnly: true
-        submitter:
-          type: string
-          description: Submitter of the order as per on_behalf_of
-          readOnly: true
         state:
           type: string
           description: The state of the instruction
@@ -4181,6 +4176,18 @@ components:
           - SLICE
           - SUBMIT
           - PRODUCT
+        order_ts_id:
+          type: string
+          description: The unique order id of the order to apply this instruction
+            to
+        instruction_ts_id:
+          type: string
+          description: The id of the instruction.
+          readOnly: true
+        submitter:
+          type: string
+          description: Submitter of the order as per on_behalf_of
+          readOnly: true
         errors:
           type: array
           items:
@@ -4213,18 +4220,6 @@ components:
           type: string
           description: An arbitrary reason as to why the order is being amended. Populated
             with a default value if not provided
-        order_ts_id:
-          type: string
-          description: The unique order id of the order to apply this instruction
-            to
-        instruction_ts_id:
-          type: string
-          description: The id of the instruction.
-          readOnly: true
-        submitter:
-          type: string
-          description: Submitter of the order as per on_behalf_of
-          readOnly: true
         state:
           type: string
           description: The state of the instruction
@@ -4251,6 +4246,18 @@ components:
           - SLICE
           - SUBMIT
           - PRODUCT
+        order_ts_id:
+          type: string
+          description: The unique order id of the order to apply this instruction
+            to
+        instruction_ts_id:
+          type: string
+          description: The id of the instruction.
+          readOnly: true
+        submitter:
+          type: string
+          description: Submitter of the order as per on_behalf_of
+          readOnly: true
         errors:
           type: array
           items:
@@ -4283,18 +4290,6 @@ components:
           type: string
           description: An arbitrary reason as to why the order is being amended. Populated
             with a default value if not provided
-        order_ts_id:
-          type: string
-          description: The unique order id of the order to apply this instruction
-            to
-        instruction_ts_id:
-          type: string
-          description: The id of the instruction.
-          readOnly: true
-        submitter:
-          type: string
-          description: Submitter of the order as per on_behalf_of
-          readOnly: true
         state:
           type: string
           description: The state of the instruction
@@ -4321,6 +4316,18 @@ components:
           - SLICE
           - SUBMIT
           - PRODUCT
+        order_ts_id:
+          type: string
+          description: The unique order id of the order to apply this instruction
+            to
+        instruction_ts_id:
+          type: string
+          description: The id of the instruction.
+          readOnly: true
+        submitter:
+          type: string
+          description: Submitter of the order as per on_behalf_of
+          readOnly: true
         errors:
           type: array
           items:
@@ -4571,13 +4578,60 @@ components:
         executing_broker_name:
           type: string
           description: The name of the executing broker
-        owner:
-          type: string
-          description: The owner of the order (set from the REST client login).
         version:
           type: integer
           description: The version of the order
           format: int32
+        state:
+          type: string
+          description: "The state of the order (\"REGISTERED\", \"ACTIVE\", \"WORKING\"\
+            )."
+          readOnly: true
+          enum:
+          - ACCEPTED
+          - ACTIVE
+          - ALLEGED
+          - ALLOCATED
+          - AMENDING
+          - BOOKED
+          - BROKEN
+          - CANCELING
+          - CANCELLED
+          - DEACTIVATED
+          - DEFERRED
+          - DELETED
+          - DONE
+          - EXECUTED
+          - EXPIRED
+          - PARTIALLY_ALLOCATED
+          - PARTIALLY_BOOKED
+          - PENDING_ACCEPTANCE
+          - PENDING_ALLOCATION
+          - PENDING_AUTHORIZATION
+          - PENDING_CANCELATION
+          - REGISTERED
+          - REJECTED
+          - SETTLED
+          - SUBMITTING
+          - TRADING_COMPLETE
+          - UNALLOCATED
+          - WORKING
+          - MANAGED
+        type:
+          type: string
+          description: "Type of the item (\"AMEND\", \"CANCEL\", \"SLICE\", \"SUBMIT\"\
+            , )"
+          enum:
+          - ACKNOWLEDGEMENT
+          - AMEND
+          - CANCEL
+          - ORDER
+          - SLICE
+          - SUBMIT
+          - PRODUCT
+        owner:
+          type: string
+          description: The owner of the order (set from the REST client login).
         reference1:
           type: string
           description: An STP reference (varies from client to client).
@@ -4621,12 +4675,12 @@ components:
         creation_date:
           type: string
           description: The order creation date
-        quantity:
-          type: number
-          description: The quantity of the order (in number of shares or contracts).
         price:
           type: number
           description: The price of the order (when price type is "LIMIT").
+        quantity:
+          type: number
+          description: The quantity of the order (in number of shares or contracts).
         side:
           type: string
           description: "The side of the order (\"BUY\", \"SELL\")."
@@ -4868,53 +4922,6 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/OrderObject'
-        state:
-          type: string
-          description: "The state of the order (\"REGISTERED\", \"ACTIVE\", \"WORKING\"\
-            )."
-          readOnly: true
-          enum:
-          - ACCEPTED
-          - ACTIVE
-          - ALLEGED
-          - ALLOCATED
-          - AMENDING
-          - BOOKED
-          - BROKEN
-          - CANCELING
-          - CANCELLED
-          - DEACTIVATED
-          - DEFERRED
-          - DELETED
-          - DONE
-          - EXECUTED
-          - EXPIRED
-          - PARTIALLY_ALLOCATED
-          - PARTIALLY_BOOKED
-          - PENDING_ACCEPTANCE
-          - PENDING_ALLOCATION
-          - PENDING_AUTHORIZATION
-          - PENDING_CANCELATION
-          - REGISTERED
-          - REJECTED
-          - SETTLED
-          - SUBMITTING
-          - TRADING_COMPLETE
-          - UNALLOCATED
-          - WORKING
-          - MANAGED
-        type:
-          type: string
-          description: "Type of the item (\"AMEND\", \"CANCEL\", \"SLICE\", \"SUBMIT\"\
-            , )"
-          enum:
-          - ACKNOWLEDGEMENT
-          - AMEND
-          - CANCEL
-          - ORDER
-          - SLICE
-          - SUBMIT
-          - PRODUCT
         errors:
           type: array
           items:
@@ -5415,6 +5422,10 @@ components:
           description: "A flag to indicate the operation must be accepted manually\
             \ via the owning trader in TradeSmart. In the case of sliced orders, the\
             \ children must be adjusted before the parent amend can be accepted"
+        matched_principal:
+          type: boolean
+          description: "Where the facilitator of the trade takes no risk, only matching\
+            \ counterparties."
         on_behalf_of:
           type: string
           description: "The manual activation behaviour for the order submitter (\"\
@@ -5515,6 +5526,13 @@ components:
         reference2:
           type: string
           description: Client specified reference id 2
+        regulated_venue:
+          type: string
+          description: "The regulated venue for the order, i.e. NONE, UK_MTF, EU_MTF."
+        security_financing_transaction:
+          type: boolean
+          description: Transactions that fall within the scope of activity for securities
+            financing.
         short_type:
           type: string
           description: "The short type of the order (\"COMPLY\", \"COVER\", \"EXEMPT\"\
@@ -5897,9 +5915,6 @@ components:
           type: number
           description: The price of the order (when price type is "LIMIT").  Only
             required when the child slice should have a different price than the parent.
-        quantity:
-          type: number
-          description: Quantity to slice
         type:
           type: string
           description: "Type of the item (\"AMEND\", \"CANCEL\", \"SLICE\", \"SUBMIT\"\
@@ -5912,22 +5927,13 @@ components:
           - SLICE
           - SUBMIT
           - PRODUCT
+        quantity:
+          type: number
+          description: Quantity to slice
         reason:
           type: string
           description: An arbitrary reason as to why the order is being amended. Populated
             with a default value if not provided
-        order_ts_id:
-          type: string
-          description: The unique order id of the order to apply this instruction
-            to
-        instruction_ts_id:
-          type: string
-          description: The id of the instruction.
-          readOnly: true
-        submitter:
-          type: string
-          description: Submitter of the order as per on_behalf_of
-          readOnly: true
         state:
           type: string
           description: The state of the instruction
@@ -5942,6 +5948,18 @@ components:
           - BROKEN
           - PENDING_PRICING
           - PENDING_BROKER_SELECTION
+        order_ts_id:
+          type: string
+          description: The unique order id of the order to apply this instruction
+            to
+        instruction_ts_id:
+          type: string
+          description: The id of the instruction.
+          readOnly: true
+        submitter:
+          type: string
+          description: Submitter of the order as per on_behalf_of
+          readOnly: true
         errors:
           type: array
           items:
