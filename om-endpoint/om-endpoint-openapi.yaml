@@ -3126,7 +3126,8 @@ components:
           description: Client defined Order Id
         competitive_rates:
           type: array
-          description: Competetive rates for the Order
+          description: "Competitive rates for the Order. Required when handling_type is 
+            \"RFQ\". At least one entry must contain a valid external_id."
           items:
             $ref: '#/components/schemas/ReferencePrice'
         correlation_id:
@@ -3287,7 +3288,9 @@ components:
           description: The handling comment.
         handling_type:
           type: string
-          description: "The handling type (\"MANUAL\", \"AUTOMATIC\")."
+          description: "The handling type (\"MANUAL\", \"AUTOMATIC\"). When set to \"RFQ\", 
+            the order requires: competitive_rates with at least one entry containing an 
+            external_id, and a price."
           enum:
           - MANUAL
           - AUTOMATIC
@@ -3419,7 +3422,8 @@ components:
           format: int32
         price:
           type: number
-          description: The price of the order (when price type is "LIMIT").
+          description: "The price of the order (when price type is \"LIMIT\"). Required when
+            handling_type is \"RFQ\"."
         price_offset:
           type: number
           description: "An offset from from the current price, used when defining\
@@ -3952,6 +3956,7 @@ components:
             $ref: '#/components/schemas/Error'
         external_id:
           type: string
+          description: "Required in at least one competitive_rates entry when handling_type is \"RFQ\"."
         far_ask_all_in:
           type: number
         far_ask_forward_points:
@@ -4462,7 +4467,8 @@ components:
           writeOnly: true
         competitive_rates:
           type: array
-          description: Competetive rates for the Order
+          description: "Competitive rates for the Order. Required when handling_type is 
+            \"RFQ\". At least one entry must contain a valid external_id."
           items:
             $ref: '#/components/schemas/ReferencePrice'
         correlation_id:
@@ -4677,7 +4683,8 @@ components:
           description: The order creation date
         price:
           type: number
-          description: The price of the order (when price type is "LIMIT").
+          description: "The price of the order (when price type is \"LIMIT\"). Required when
+            handling_type is \"RFQ\"."
         quantity:
           type: number
           description: The quantity of the order (in number of shares or contracts).
@@ -4778,7 +4785,9 @@ components:
           description: The handling comment.
         handling_type:
           type: string
-          description: "The handling type (\"MANUAL\", \"AUTOMATIC\")."
+          description: "The handling type (\"MANUAL\", \"AUTOMATIC\"). When set to \"RFQ\", 
+            the order requires: competitive_rates with at least one entry containing an 
+            external_id, and a price."
           enum:
           - MANUAL
           - AUTOMATIC
@@ -4997,7 +5006,8 @@ components:
             $ref: '#/components/schemas/Error'
         external_id:
           type: string
-      description: Competetive rates for the Order
+          description: "Required in at least one competitive_rates entry when handling_type is \"RFQ\"."
+      description: Competitive rates for the Order
       anyOf:
       - $ref: '#/components/schemas/FxReferencePrice'
     V2FxAlgoDetails:
