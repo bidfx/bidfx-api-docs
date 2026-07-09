@@ -3126,7 +3126,7 @@ components:
           description: Client defined Order Id
         competitive_rates:
           type: array
-          description: Competetive rates for the Order
+          description: "Competitive rates for the Order. For RFQ orders: if provided, price is also required."
           items:
             $ref: '#/components/schemas/ReferencePrice'
         correlation_id:
@@ -3287,7 +3287,7 @@ components:
           description: The handling comment.
         handling_type:
           type: string
-          description: "The handling type (\"MANUAL\", \"AUTOMATIC\")."
+          description: "The handling type (\"MANUAL\", \"AUTOMATIC\"). For \"RFQ\": price is required when competitive_rates is present."
           enum:
           - MANUAL
           - AUTOMATIC
@@ -3419,7 +3419,7 @@ components:
           format: int32
         price:
           type: number
-          description: The price of the order (when price type is "LIMIT").
+          description: "The price of the order (when price type is \"LIMIT\"). For RFQ orders: required when competitive_rates is provided."
         price_offset:
           type: number
           description: "An offset from from the current price, used when defining\
@@ -4462,7 +4462,7 @@ components:
           writeOnly: true
         competitive_rates:
           type: array
-          description: Competetive rates for the Order
+          description: "Competitive rates for the Order. For RFQ orders: if provided, price is also required."
           items:
             $ref: '#/components/schemas/ReferencePrice'
         correlation_id:
@@ -4677,7 +4677,7 @@ components:
           description: The order creation date
         price:
           type: number
-          description: The price of the order (when price type is "LIMIT").
+          description: "The price of the order (when price type is \"LIMIT\"). For RFQ orders: required when competitive_rates is provided."
         quantity:
           type: number
           description: The quantity of the order (in number of shares or contracts).
@@ -4778,7 +4778,7 @@ components:
           description: The handling comment.
         handling_type:
           type: string
-          description: "The handling type (\"MANUAL\", \"AUTOMATIC\")."
+          description: "The handling type (\"MANUAL\", \"AUTOMATIC\"). For \"RFQ\": price is required when competitive_rates is present."
           enum:
           - MANUAL
           - AUTOMATIC
@@ -4997,7 +4997,7 @@ components:
             $ref: '#/components/schemas/Error'
         external_id:
           type: string
-      description: Competetive rates for the Order
+      description: Competitive rates for the Order
       anyOf:
       - $ref: '#/components/schemas/FxReferencePrice'
     V2FxAlgoDetails:
