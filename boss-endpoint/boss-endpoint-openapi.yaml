@@ -16,26 +16,17 @@ info:
     "Locking" refers to the process of finalising a shaping order and sending it to the order manager. Once an order is locked, it
     can no longer be modified. When an order is locked it will be assigned a trading_order_id value that corresponds to the
     order_ts_id in the standard order manager API.
-
-    NB: this swagger doc is for documentation purposes only - hitting execute will return 'failed to fetch'.
-    However this will display the curl request which you can try out for yourself."
   contact:
     name: support
     email: askfx@bidfx.com
   version: "2.0"
 servers:
-  - url: https://api.ld.bidfx.biz:443
-    description: London UAT REST
-  - url: https://api.ty.bidfx.biz:443
-    description: Tokyo UAT REST
-  - url: https://api.sg.bidfx.com:443
-    description: Singapore Production REST
-  - url: https://api.ty.bidfx.com:443
-    description: Tokyo Production REST
-  - url: https://api.ld.bidfx.com:443
-    description: London Production REST
-  - url: https://api.ny.bidfx.com:443
-    description: New York Production REST
+- url: https://portcullis.app.bidfx.dev:443
+  description: DEV
+- url: https://portcullis.app.bidfx.tech:443
+  description: QA
+- url: https://api.ld.bidfx.biz
+  description: UAT
 paths:
   /api/fx-shaping/v1/cash/shaped/executions:
     get:
@@ -96,19 +87,25 @@ paths:
                 $ref: '#/components/schemas/Error'
       security:
       - basicAuth: []
-  /api/fx-shaping/v1/cash/shaped/orders/actions/unlock:
-    post:
+  /api/fx-shaping/v1/cash/shaped/orders:
+    get:
       tags:
-      - Actions
-      summary: Unlock a single cash shaped order in the shaping server.
-      description: Unlock a single cash shaped order in the shaping server.
-      operationId: handleCashUnlockRequest
-      requestBody:
-        description: Unlock Order Request Object
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/UnlockCashOrderRequest'
+      - Orders
+      summary: Query a single cash shaped order in the shaping server.
+      description: Query a single cash shaped order in the shaping server.
+      operationId: handleGetCashShapedRequest
+      parameters:
+      - name: order_id
+        in: query
+        schema:
+          type: string
+      - name: include_members
+        in: query
+        description: Boolean flag indicating whether member orders comprising the
+          shaped order should be included in the response.
+        schema:
+          type: boolean
+          default: false
       responses:
         401:
           description: Credentials are required to access this endpoint
@@ -120,7 +117,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Error'
+                $ref: '#/components/schemas/CashShapedOrder'
         405:
           description: The request method is not supported on this resource
         406:
@@ -138,9 +135,11 @@ paths:
               schema:
                 $ref: '#/components/schemas/Error'
         200:
-          description: Successfully unlocked Shaped Order
+          description: Successfully located Shaped Order
           content:
-            application/json: {}
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CashShapedOrder'
         408:
           description: The API could not connect to the shaping server, or the server
             did not respond within a reasonable timeframe
@@ -204,25 +203,19 @@ paths:
                 $ref: '#/components/schemas/Error'
       security:
       - basicAuth: []
-  /api/fx-shaping/v1/cash/shaped/orders:
-    get:
+  /api/fx-shaping/v1/cash/shaped/orders/actions/unlock:
+    post:
       tags:
-      - Orders
-      summary: Query a single cash shaped order in the shaping server.
-      description: Query a single cash shaped order in the shaping server.
-      operationId: handleGetCashShapedRequest
-      parameters:
-      - name: order_id
-        in: query
-        schema:
-          type: string
-      - name: include_members
-        in: query
-        description: Boolean flag indicating whether member orders comprising the
-          shaped order should be included in the response.
-        schema:
-          type: boolean
-          default: false
+      - Actions
+      summary: Unlock a single cash shaped order in the shaping server.
+      description: Unlock a single cash shaped order in the shaping server.
+      operationId: handleCashUnlockRequest
+      requestBody:
+        description: Unlock Order Request Object
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UnlockCashOrderRequest'
       responses:
         401:
           description: Credentials are required to access this endpoint
@@ -234,7 +227,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/CashShapedOrder'
+                $ref: '#/components/schemas/Error'
         405:
           description: The request method is not supported on this resource
         406:
@@ -252,11 +245,9 @@ paths:
               schema:
                 $ref: '#/components/schemas/Error'
         200:
-          description: Successfully located Shaped Order
+          description: Successfully unlocked Shaped Order
           content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/CashShapedOrder'
+            application/json: {}
         408:
           description: The API could not connect to the shaping server, or the server
             did not respond within a reasonable timeframe
@@ -501,6 +492,61 @@ paths:
                 $ref: '#/components/schemas/Error'
       security:
       - basicAuth: []
+  /api/fx-shaping/v1/option/shaped/orders:
+    get:
+      tags:
+      - Orders
+      summary: Query a single option shaped order in the shaping server.
+      description: Query a single option shaped order in the shaping server.
+      operationId: handleGetOptionShapedRequest
+      parameters:
+      - name: order_id
+        in: query
+        schema:
+          type: string
+      responses:
+        401:
+          description: Credentials are required to access this endpoint
+        403:
+          description: User does not have the required permissions to access this
+            resource
+        404:
+          description: The given order ID did not refer to a known shaped order
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OptionShapedOrder'
+        405:
+          description: The request method is not supported on this resource
+        406:
+          description: The request does not support the media type that the server
+            is producing; check the "Accept" header in the request is valid
+        414:
+          description: The request URL is too long
+        415:
+          description: The endpoint does not support the media type that was sent;
+            check the "Content-Type" header in the request is valid
+        500:
+          description: There was an error processing the request on the server.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        200:
+          description: Successfully located Shaped Order
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OptionShapedOrder'
+        408:
+          description: The API could not connect to the shaping server, or the server
+            did not respond within a reasonable timeframe
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      security:
+      - basicAuth: []
   /api/fx-shaping/v1/option/shaped/orders/actions/lock:
     post:
       tags:
@@ -600,61 +646,6 @@ paths:
           description: Successfully unlocked Shaped Order
           content:
             application/json: {}
-        408:
-          description: The API could not connect to the shaping server, or the server
-            did not respond within a reasonable timeframe
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-      security:
-      - basicAuth: []
-  /api/fx-shaping/v1/option/shaped/orders:
-    get:
-      tags:
-      - Orders
-      summary: Query a single option shaped order in the shaping server.
-      description: Query a single option shaped order in the shaping server.
-      operationId: handleGetOptionShapedRequest
-      parameters:
-      - name: order_id
-        in: query
-        schema:
-          type: string
-      responses:
-        401:
-          description: Credentials are required to access this endpoint
-        403:
-          description: User does not have the required permissions to access this
-            resource
-        404:
-          description: The given order ID did not refer to a known shaped order
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/OptionShapedOrder'
-        405:
-          description: The request method is not supported on this resource
-        406:
-          description: The request does not support the media type that the server
-            is producing; check the "Accept" header in the request is valid
-        414:
-          description: The request URL is too long
-        415:
-          description: The endpoint does not support the media type that was sent;
-            check the "Content-Type" header in the request is valid
-        500:
-          description: There was an error processing the request on the server.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-        200:
-          description: Successfully located Shaped Order
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/OptionShapedOrder'
         408:
           description: The API could not connect to the shaping server, or the server
             did not respond within a reasonable timeframe
@@ -838,6 +829,15 @@ paths:
                 $ref: '#/components/schemas/Error'
       security:
       - basicAuth: []
+  /application.wadl:
+    get:
+      operationId: getWadl
+      responses:
+        default:
+          description: default response
+          content:
+            application/vnd.sun.wadl+xml: {}
+            application/xml: {}
   /application.wadl/{path}:
     get:
       operationId: getExternalGrammar
@@ -851,15 +851,6 @@ paths:
         default:
           description: default response
           content:
-            application/xml: {}
-  /application.wadl:
-    get:
-      operationId: getWadl
-      responses:
-        default:
-          description: default response
-          content:
-            application/vnd.sun.wadl+xml: {}
             application/xml: {}
 components:
   schemas:
@@ -945,26 +936,6 @@ components:
           type: object
           description: The value in the field the error applies to
           readOnly: true
-    UnlockCashOrderRequest:
-      type: object
-      properties:
-        errors:
-          type: array
-          items:
-            $ref: '#/components/schemas/Error'
-        shaped_order_id:
-          type: string
-          writeOnly: true
-    LockCashOrderRequest:
-      type: object
-      properties:
-        errors:
-          type: array
-          items:
-            $ref: '#/components/schemas/Error'
-        shaped_order_id:
-          type: string
-          writeOnly: true
     Allocation:
       type: object
       properties:
@@ -999,6 +970,10 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/Error'
+        excluded_executing_brokers:
+          type: array
+          items:
+            type: string
         executed_quantity:
           type: number
         far_executed_quantity:
@@ -1068,19 +1043,18 @@ components:
           type: string
         deal_type:
           type: string
-          description: The deal type to be traded (FORWARD can also be provided as FWD or OUTRIGHT)
-          enum:
-            - SPOT
-            - FORWARD
-            - NDF
-            - SWAP
-            - NDS
+          description: The deal type to be traded (FORWARD can also be provided as
+            FWD or OUTRIGHT)
         dealt_ccy:
           type: string
         errors:
           type: array
           items:
             $ref: '#/components/schemas/Error'
+        excluded_executing_brokers:
+          type: array
+          items:
+            type: string
         executed_quantity:
           type: number
         far_executed_quantity:
@@ -1119,6 +1093,26 @@ components:
           type: string
         ticket_shortcut:
           type: string
+    LockCashOrderRequest:
+      type: object
+      properties:
+        errors:
+          type: array
+          items:
+            $ref: '#/components/schemas/Error'
+        shaped_order_id:
+          type: string
+          writeOnly: true
+    UnlockCashOrderRequest:
+      type: object
+      properties:
+        errors:
+          type: array
+          items:
+            $ref: '#/components/schemas/Error'
+        shaped_order_id:
+          type: string
+          writeOnly: true
     OptionExecution:
       type: object
       properties:
@@ -1141,13 +1135,13 @@ components:
         option_strategy:
           type: string
           enum:
-          - SINGLE_VANILLA
-          - STRADDLE
-          - STRANGLE
-          - RISK_REVERSAL
-          - CALL_SPREAD
-          - PUT_SPREAD
-          - CALENDAR_SPREAD
+          - SingleVanilla
+          - Straddle
+          - Strangle
+          - RiskReversal
+          - CallSpread
+          - PutSpread
+          - CalendarSpread
         premium:
           type: number
         premium_currency:
@@ -1187,6 +1181,7 @@ components:
           - NONE
           - SPOT
           - FWD
+          - NDF
         errors:
           type: array
           items:
@@ -1214,26 +1209,6 @@ components:
           type: number
         volatility_percentage:
           type: number
-    LockOptionOrderRequest:
-      type: object
-      properties:
-        errors:
-          type: array
-          items:
-            $ref: '#/components/schemas/Error'
-        shaped_order_id:
-          type: string
-          writeOnly: true
-    UnlockOptionOrderRequest:
-      type: object
-      properties:
-        errors:
-          type: array
-          items:
-            $ref: '#/components/schemas/Error'
-        shaped_order_id:
-          type: string
-          writeOnly: true
     OptionShapedOrder:
       type: object
       properties:
@@ -1251,6 +1226,10 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/Error'
+        excluded_executing_brokers:
+          type: array
+          items:
+            type: string
         leg1:
           $ref: '#/components/schemas/OptionShapedOrderLeg'
         leg2:
@@ -1312,6 +1291,26 @@ components:
           type: string
         strike_price:
           type: number
+    LockOptionOrderRequest:
+      type: object
+      properties:
+        errors:
+          type: array
+          items:
+            $ref: '#/components/schemas/Error'
+        shaped_order_id:
+          type: string
+          writeOnly: true
+    UnlockOptionOrderRequest:
+      type: object
+      properties:
+        errors:
+          type: array
+          items:
+            $ref: '#/components/schemas/Error'
+        shaped_order_id:
+          type: string
+          writeOnly: true
     OptionStagedOrder:
       type: object
       properties:
@@ -1329,13 +1328,8 @@ components:
           type: string
         deal_type:
           type: string
-          description: The deal type to be traded (FORWARD can also be provided as FWD or OUTRIGHT)
-          enum:
-            - SPOT
-            - FORWARD
-            - NDF
-            - SWAP
-            - NDS
+          description: The deal type to be traded (FORWARD can also be provided as
+            FWD or OUTRIGHT)
         errors:
           type: array
           items:
